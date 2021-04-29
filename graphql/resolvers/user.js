@@ -16,6 +16,7 @@ module.exports = {
     // Login
     login: async (_, args) => {
       const { email, password } = args;
+      
       const errors = {};
 
       try {
