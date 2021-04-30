@@ -3,20 +3,22 @@ const { UserInputError } = require("apollo-server");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-dotenv.config()
+dotenv.config();
 
 module.exports = {
   Query: {
     // Get Users
     users: async () => {
       const res = await User.find();
+      // let pass=await bcrypt.hash("admin01", 6);
+      // console.log(pass)
       return res;
     },
 
     // Login
     login: async (_, args) => {
       const { email, password } = args;
-      
+
       const errors = {};
 
       try {
@@ -40,11 +42,14 @@ module.exports = {
           errors.password = "password is incorrect";
           throw new UserInputError("password is incorrect", { errors });
         }
-        const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-          expiresIn: 60 * 60,
-        });
+        const token = jwt.sign(
+          { email, name: user.firstname },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: 60 * 60,
+          }
+        );
         user.token = token;
-
         return {
           ...user.toJSON(),
           token,
