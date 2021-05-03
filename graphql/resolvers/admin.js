@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 module.exports = {
-  Query: {
+  Mutation: {
     // Login
     adminLogin: async (_, args) => {
       const { email, password } = args;

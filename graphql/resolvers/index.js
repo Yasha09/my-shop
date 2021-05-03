@@ -1,12 +1,12 @@
-const userResolvers = require("./user");
+const customerResolvers = require("./customer");
 const adminResolvers = require("./admin");
 
 module.exports = {
   Query: {
-    ...userResolvers.Query,
-    ...adminResolvers.Query,
+    ...customerResolvers.Query,
   },
   Mutation: {
-    ...userResolvers.Mutation,
+    ...customerResolvers.Mutation,
+    ...adminResolvers.Mutation,
   },
 };
