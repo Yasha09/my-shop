@@ -1,5 +1,5 @@
 const Customer = require("../../models/Customer");
-const { UserInputError } = require("apollo-server");
+const { UserInputError, AuthenticationError } = require("apollo-server");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
@@ -7,12 +7,18 @@ dotenv.config();
 
 module.exports = {
   Query: {
-    // Get Users
-    customers: async () => {
-      const res = await Customer.find();
-      // let pass=await bcrypt.hash("admin01", 6);
-      // console.log(pass)
-      return res;
+    // Get Single Customer
+    customer: async (_, __, { user }) => {
+      try {
+        if (!user) throw new AuthenticationError("Unauthenticated");
+        let customer = await Customer.findOne({ email: user.email });
+        if (!customer) throw new UserInputError("User not found");
+
+        return customer;
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
     },
   },
   Mutation: {
@@ -71,7 +77,6 @@ module.exports = {
           errors.email = "user not found";
           throw new UserInputError("Customer not found", { errors });
         }
-
         // Check password
         const correctPassword = await bcrypt.compare(
           password,
@@ -81,8 +86,14 @@ module.exports = {
           errors.password = "password is incorrect";
           throw new UserInputError("password is incorrect", { errors });
         }
+
         const token = jwt.sign(
-          { email, name: customer.firstname },
+          // { email, name: customer.firstname },
+          {
+            email: customer.email,
+            firstname: customer.firstname,
+            lastname: customer.lastname,
+          },
           process.env.JWT_SECRET,
           {
             expiresIn: 60 * 60,

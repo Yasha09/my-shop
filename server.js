@@ -5,12 +5,14 @@ dotenv.config();
 
 const typeDefs = require("./graphql/typeDefs");
 const resolvers = require("./graphql/resolvers");
+const auth = require("./util/auth");
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  context: auth,
   introspection: true,
-  playground: true
+  playground: true,
 });
 
 mongoose

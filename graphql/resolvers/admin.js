@@ -1,12 +1,24 @@
-const Admin = require("../../models/Admin");
 const { UserInputError } = require("apollo-server");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
+const Admin = require("../../models/Admin");
+const Customer = require("../../models/Customer");
 const dotenv = require("dotenv");
 dotenv.config();
 
 module.exports = {
+  Query: {
+    // Get Users
+    customers: async (_, __, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      let res = await Customer.find();
+      console.log(res)
+      return res;
+    },
+  },
   Mutation: {
+    // let pass=await bcrypt.hash("admin01", 6);
     // Login
     adminLogin: async (_, args) => {
       const { email, password } = args;
