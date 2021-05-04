@@ -13,8 +13,35 @@ module.exports = {
     customers: async (_, __, { user }) => {
       if (!user) throw new AuthenticationError("Unauthenticated");
       let res = await Customer.find();
-      console.log(res)
       return res;
+    },
+    adminCustomer: async (_, { id }, { user }) => {
+      const errors = {};
+      try {
+        if (!user) throw new AuthenticationError("Unauthenticated");
+        let customer = await Customer.findOne({ _id: id });
+        if (!customer) {
+          errors.customer = "customer not found";
+          throw new UserInputError("customer not found", { errors });
+        }
+        return customer;
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
+    },
+     // Get Single Admin
+     admin: async (_, __, { user }) => {
+      try {
+        if (!user) throw new AuthenticationError("Unauthenticated");
+        let admin = await Admin.findOne({ email: user.email });
+        if (!admin) throw new UserInputError("Admin not found");
+
+        return admin;
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
     },
   },
   Mutation: {

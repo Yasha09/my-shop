@@ -3,9 +3,8 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
-
 module.exports = (context) => {
-  let token
+  let token;
   if (context.req && context.req.headers.authorization) {
     token = context.req.headers.authorization.split("Bearer ")[1];
   }
