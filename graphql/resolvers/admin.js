@@ -30,8 +30,8 @@ module.exports = {
         throw err;
       }
     },
-     // Get Single Admin
-     admin: async (_, __, { user }) => {
+    // Get Single Admin
+    admin: async (_, __, { user }) => {
       try {
         if (!user) throw new AuthenticationError("Unauthenticated");
         let admin = await Admin.findOne({ email: user.email });
@@ -77,7 +77,7 @@ module.exports = {
           { email, name: admin.firstname },
           process.env.JWT_SECRET,
           {
-            expiresIn: 60 * 60,
+            expiresIn: 365 * 24 * 60 * 60,
           }
         );
         admin.token = token;
