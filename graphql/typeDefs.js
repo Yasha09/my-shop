@@ -17,6 +17,13 @@ module.exports = gql`
     token: String
   }
 
+  input CustomerDataInput {
+    email: String,
+    password: String,
+    firstname: String,
+    lastname: String
+  }
+
   type Query {
     customers: [Customer]!
     customer: Customer!
@@ -32,6 +39,9 @@ module.exports = gql`
       email: String!
     ): Customer!
     adminLogin(email: String!, password: String!): Admin!
+    adminAddCustomer(customerData: CustomerDataInput): Boolean
+    adminDeleteCustomer(id: ID!): Boolean
+    adminUpdateCustomer(id: ID!, customerData: CustomerDataInput): Boolean
     login(email: String!, password: String!): Customer!
   }
 `;
