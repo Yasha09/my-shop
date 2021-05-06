@@ -10,7 +10,7 @@ module.exports = gql`
   }
 
   type Admin {
-    id:ID!
+    id: ID!
     firstname: String!
     lastname: String!
     email: String!
@@ -20,7 +20,7 @@ module.exports = gql`
   type Query {
     customers: [Customer]!
     customer: Customer!
-    admin:Admin!
+    admin: Admin!
     adminCustomer(id: ID!): Customer!
   }
 
