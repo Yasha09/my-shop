@@ -24,11 +24,38 @@ module.exports = gql`
     lastname: String
   }
 
+  type Product {
+    _id:ID!
+    title: String!,
+    image: String!,
+    brand: String!,
+    description: String!,
+    price: Float!,
+    categories: [Category]!
+  }
+
+  input ProductInput{
+    title: String!,
+    image: String!,
+    brand: String!,
+    description: String!,
+    price: Float!
+    categories: [ID]!
+  }
+
+  type Category {
+    _id: ID!
+    title: String!
+    products: [Product]!
+  }
+
   type Query {
     customers: [Customer]!
     customer: Customer!
     admin:Admin!
     adminCustomer(id: ID!): Customer!
+    products: [Product]!
+    categories: [Category]!
   }
 
   type Mutation {
@@ -43,5 +70,16 @@ module.exports = gql`
     adminDeleteCustomer(id: ID!): Boolean
     adminUpdateCustomer(id: ID!, customerData: CustomerDataInput): Boolean
     login(email: String!, password: String!): Customer!
+
+    # product
+    adminCreateProduct(productInput: ProductInput!): Product!
+    adminUpdateProduct(id: ID!, title: String!): Product! 
+    adminDeleteProduct(id:ID!): Product!
+
+    # category
+    adminCreateCategory(title: String!,categories: [ID!]): Category!
+    adminUpdateCategory(id: ID!, title: String!): Category!
+    adminDeleteCategory(id:ID!): Category!
   }
-`;
+`;  
+
