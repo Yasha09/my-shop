@@ -1,23 +1,28 @@
 const { Schema, model } = require("mongoose");
+const { isEmail } = require("validator");
 
 const adminSchema = new Schema(
   {
     firstname: {
       type: String,
-      required: true,
+      require: [true, "firstname required"],
     },
     lastname: {
       type: String,
-      required: true,
+      require: [true, "lastname required"],
     },
     email: {
       type: String,
-      required: true,
+      require: [true, "email required"],
       unique: true,
+      validate: {
+        validator: isEmail,
+        message: "Please fill a valid email address",
+      },
     },
     password: {
       type: String,
-      required: true,
+      require: [true, "password required"],
     },
   },
   { timestamps: true }

@@ -1,4 +1,4 @@
-const { UserInputError } = require("apollo-server");
+const { UserInputError, ApolloError } = require("apollo-server");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -30,8 +30,8 @@ module.exports = {
         throw err;
       }
     },
-     // Get Single Admin
-     admin: async (_, __, { user }) => {
+    // Get Single Admin
+    admin: async (_, __, { user }) => {
       try {
         if (!user) throw new AuthenticationError("Unauthenticated");
         let admin = await Admin.findOne({ email: user.email });
@@ -77,7 +77,7 @@ module.exports = {
           { email, name: admin.firstname },
           process.env.JWT_SECRET,
           {
-            expiresIn: 60 * 60,
+            expiresIn: 365 * 24 * 60 * 60,
           }
         );
         admin.token = token;
@@ -90,6 +90,108 @@ module.exports = {
         console.log(err);
         throw err;
       }
+    },
+    adminAddCustomer: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const {
+        customerData: { firstname, lastname, password, email },
+      } = args;
+      const errors = {};
+
+      if (email.trim().length === 0) errors.email = "email must not be empty";
+      if (password.length === 0) errors.password = "password must not be empty";
+      if (Object.keys(errors).length > 0) {
+        throw new UserInputError("bad input", { errors });
+      }
+
+      const customer = await Customer.findOne({ email });
+
+      if (customer)
+        throw new ApolloError("this email address is already being used");
+
+      const hashPassword = await bcrypt.hash(password, 6);
+
+      const newCustomer = new Customer({
+        email,
+        password: hashPassword,
+        firstname,
+        lastname,
+      });
+
+      newCustomer.save();
+
+      return true;
+    },
+    adminDeleteCustomer: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const { id } = args;
+
+      if (id.trim().length === 0) {
+        throw new UserInputError("bad input");
+      }
+
+      let customer;
+
+      try {
+        customer = await Customer.findOne({ _id: id });
+      } catch (error) {
+        throw new UserInputError("wrong id");
+      } finally {
+        if (!customer) throw new UserInputError("wrong id");
+      }
+
+      customer.deleteOne();
+
+      return true;
+    },
+    adminUpdateCustomer: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const { id, customerData } = args;
+
+      if (id.trim().length === 0) {
+        throw new UserInputError("bad input");
+      }
+
+      let customer;
+
+      try {
+        customer = await Customer.findOne({ _id: id });
+      } catch (error) {
+        throw new UserInputError("wrong id");
+      } finally {
+        if (!customer) throw new UserInputError("wrong id");
+      }
+
+      const updates = {};
+
+      for (const key in customerData) {
+        const element = customerData[key];
+
+        if (element.trim().length > 0) {
+          if (key === "password") {
+            const hashPassword = await bcrypt.hash(element, 6);
+
+            updates[key] = hashPassword;
+
+            continue;
+          }
+
+          updates[key] = element;
+        }
+      }
+
+      if (Object.keys(updates).length === 0) {
+        throw new UserInputError("data is not provided");
+      }
+
+      await customer.updateOne(updates);
+
+      customer.save();
+
+      return true;
     },
   },
 };

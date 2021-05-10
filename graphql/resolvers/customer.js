@@ -50,8 +50,22 @@ module.exports = {
           password,
         });
 
-        // Return user
-        return await customer.save();
+        // Return Custome
+        let res = await customer.save();
+        const token = jwt.sign(
+          {
+            id: res._id,
+            email: res.email,
+            firstname: res.firstname,
+            lastname: res.lastname,
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: 60 * 60,
+          }
+        );
+        res.token = token;
+        return res;
       } catch (err) {
         console.log(err);
         throw new UserInputError("Bad input", { errors });
@@ -90,6 +104,7 @@ module.exports = {
         const token = jwt.sign(
           // { email, name: customer.firstname },
           {
+            id: customer._id,
             email: customer.email,
             firstname: customer.firstname,
             lastname: customer.lastname,
@@ -99,7 +114,7 @@ module.exports = {
             expiresIn: 60 * 60,
           }
         );
-        customer.token = token;
+
         return {
           ...customer.toJSON(),
           token,
