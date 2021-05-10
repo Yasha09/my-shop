@@ -68,6 +68,7 @@ module.exports = gql`
     adminLogin(email: String!, password: String!): Admin!
     adminAddCustomer(customerData: CustomerDataInput): Boolean
     adminDeleteCustomer(id: ID!): Boolean
+    adminMassDeleteCustomers(customerIds: [String]): Boolean
     adminUpdateCustomer(id: ID!, customerData: CustomerDataInput): Boolean
     login(email: String!, password: String!): Customer!
 

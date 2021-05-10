@@ -143,6 +143,27 @@ module.exports = {
 
       return true;
     },
+    adminMassDeleteCustomers: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const { customerIds } = args;
+
+      if (customerIds.length === 0) {
+        throw new UserInputError("bad input");
+      }
+
+      let result = true;
+
+      try {
+        await Customer.deleteMany({
+          "_id": { $in: customerIds },
+        });
+      } catch (error) {
+        result = false;
+      }
+
+      return result;
+    },
     adminUpdateCustomer: async (_, args, { user }) => {
       if (!user) throw new AuthenticationError("Unauthenticated");
 
