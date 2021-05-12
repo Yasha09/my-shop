@@ -1,57 +1,163 @@
+const { UserInputError, AuthenticationError } = require("apollo-server");
 const Category = require("../../models/Category");
-const dotenv = require("dotenv");
-dotenv.config();
+const Product = require("../../models/Product");
 
 module.exports = {
   Query: {
-    // get categories
-    categories: async () => {
+    categories: async (_, __, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
       const res = await Category.find();
+
       return res;
+    },
+
+    adminGetCategories: async (_, __, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const res = await Category.find();
+
+      return { items: res, total: res.length };
+    },
+
+    adminGetCategory: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const { categoryId = "" } = args;
+
+      try {
+        const category = await Category.findOne({ _id: categoryId });
+
+        if (!category) {
+          throw new UserInputError("category not found");
+        }
+
+        return category;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    getCategoryProducts: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const { categoryId = "" } = args;
+
+      try {
+        const res = await Product.find({ "categories._id": categoryId });
+
+        if (!res) {
+          throw new UserInputError("products not found");
+        }
+
+        return { products: res, total: res.length };
+      } catch (error) {
+        throw error;
+      }
     },
   },
   Mutation: {
-    //cud category
-    adminCreateCategory: async (_, args) => {
-      let { title, products } = args;
-      const category = new Category({ title, products });
-      // console.log(category);
-      return await category.save();
+    adminAddCategory: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const { categoryData: { title = "", parent } } = args;
+
+      if (!title.trim().length) {
+        throw new UserInputError("bad input");
+      }
+
+      let result = true;
+
+      try {
+        await Category.create({ title, parent });
+      } catch (error) {
+        result = false;
+      }
+
+      return result;
     },
 
-    // adminUpdateCategory: async (_, args) => {
-    //   return await Category.findOneAndUpdate(
-    //     { _id: args.id },
-    //     { title: args.title },
-    //     { new: true }
-    //   );
-    // },
+    adminMassDeleteCategories: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
 
-    adminUpdateCategory: async (_, { products, ...args }) => {
-      return await Category.findOneAndUpdate(
-        { _id: args.id },
-        {
-          ...args,
-          $push: { products: { $each: [...products] } },
-        },
-        { useFindAndModify: false, new: true }
-      );
+      const { categoryIds } = args;
+
+      if (!categoryIds.length) {
+        throw new UserInputError("bad input");
+      }
+
+      let result = true;
+
+      try {
+        const res = await Category.deleteMany({
+          "_id": { $in: categoryIds },
+        });
+
+        if (res.deletedCount < 1) {
+          throw new Error("categories not found");
+        }
+      } catch (error) {
+        result = false;
+      }
+
+      return result;
     },
 
-    adminDeleteProductFromCategory: async (_, { categoryId, products }) => {
-      return await Category.findOneAndUpdate(
-        { _id: categoryId },
-        {
-          $pullAll: {
-            products: [...products],
-          },
-        },
-        { useFindAndModify: false, new: true }
-      );
+    adminUpdateCategory: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const { categoryId = "", categoryData } = args;
+
+      if (!categoryId.trim()) {
+        throw new UserInputError("bad input");
+      }
+
+      if (!Object.keys(categoryData).length) {
+        throw new UserInputError("nothing to update");
+      }
+
+      if (typeof categoryData.title === "string" && !categoryData.title.trim()) {
+        throw new UserInputError("bad input (title)");
+      }
+
+      let result = true;
+
+      try {
+        await Category.findOneAndUpdate(
+          { _id: categoryId },
+          categoryData,
+          { useFindAndModify: false }
+        );
+
+      } catch (error) {
+        result = false;
+      }
+
+      return result;
     },
 
-    adminDeleteCategory: async (_, args) => {
-      return await Product.findByIdAndRemove({ _id: args.id });
+    adminDeleteCategory: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const { categoryId = "" } = args;
+
+      if (!categoryId.trim().length) {
+        throw new UserInputError("bad input");
+      }
+
+      let category;
+
+      try {
+        category = await Category.findOne({ _id: categoryId });
+      } catch (error) {
+        throw new UserInputError("wrong id");
+      }
+
+      if (!category) throw new UserInputError("wrong id");
+
+      category.deleteOne();
+
+      return true;
     },
   },
 };

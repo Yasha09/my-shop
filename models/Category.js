@@ -4,14 +4,12 @@ const categorySchema = new Schema(
   {
     title: {
       type: String,
-      require: [true, "title required"],
+      default: ""
     },
-    products: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Product",
-      },
-    ],
+    parent: {
+      type: String,
+      default: ""
+    },
   },
   { timestamps: true }
 );

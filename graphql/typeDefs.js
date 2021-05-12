@@ -25,6 +25,11 @@ module.exports = gql`
     lastname: String
   }
 
+  input CategoryInputData {
+    title: String
+    parent: String
+  }
+
   type Product {
     _id: ID!
     title: String!
@@ -62,9 +67,19 @@ module.exports = gql`
   }
 
   type Category {
-    _id: ID!
+    id: ID!
     title: String!
-    products: [Product]!
+    parent: String!
+  }
+
+  type AdminCategoriesResult {
+    items: [Category]
+    total: Int
+  }
+
+  type CategoryProductsResult {
+    products: [Product]
+    total: Int
   }
 
   type Query {
@@ -73,7 +88,11 @@ module.exports = gql`
     admin: Admin!
     adminCustomer(id: ID!): Customer!
     products: [Product]!
+    # categories
     categories: [Category]!
+    getCategoryProducts(categoryId: ID!): CategoryProductsResult!
+    adminGetCategories: AdminCategoriesResult!
+    adminGetCategory(categoryId: ID!): Category!
     # review
     reviewsOneProduct(productId: ID): [Review]!
   }
@@ -106,10 +125,10 @@ module.exports = gql`
     adminDeleteCategoryFromProduct(productId: ID, categories: [ID]): Product!
 
     # category
-    adminCreateCategory(title: String!, products: [ID]!): Category!
-    adminUpdateCategory(id: ID!, title: String, products: [ID]): Category!
-    adminDeleteCategory(id: ID!): Category!
-    adminDeleteProductFromCategory(categoryId: ID, products: [ID]): Category!
+    adminAddCategory(categoryData: CategoryInputData!): Boolean
+    adminUpdateCategory(categoryId: ID!, categoryData: CategoryInputData!): Boolean
+    adminDeleteCategory(categoryId: ID!): Boolean
+    adminMassDeleteCategories(categoryIds: [ID]): Boolean
 
     # Review
     createReview(reviewInput: ReviewInput): Review!
