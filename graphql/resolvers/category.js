@@ -155,7 +155,9 @@ module.exports = {
 
       if (!category) throw new UserInputError("wrong id");
 
-      category.deleteOne();
+      await Category.deleteMany({ parent: category.title });
+
+      await category.deleteOne();
 
       return true;
     },
