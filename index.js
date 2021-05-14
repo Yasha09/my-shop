@@ -20,9 +20,6 @@ app.use('/images', express.static(__dirname + '/images'));
 
 app.get("/images", (req, res) => { });
 
-// app.get("/", (req, res) => {
-//     res.sendFile(path.join(__dirname, "index.html"));
-// });
 const upload = multer({ storage: fileStorage});
 
 app.post("/single", upload.single("image"), (req, res) => {
@@ -47,7 +44,3 @@ app.post('/deleteImage', upload.single("image"), async (req, res) =>{
 //   productsModel.Mutation.adminAddProductImage("",req.file);
 //   res.send("File upload success");
 // });
-app.listen(4000);
-
-
-

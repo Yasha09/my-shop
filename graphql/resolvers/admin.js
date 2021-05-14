@@ -94,7 +94,9 @@ module.exports = {
     adminAddCustomer: async (_, args, { user }) => {
       if (!user) throw new AuthenticationError("Unauthenticated");
 
-      const { customerData: { firstname, lastname, password, email } } = args;
+      const {
+        customerData: { firstname, lastname, password, email },
+      } = args;
       const errors = {};
 
       if (email.trim().length === 0) errors.email = "email must not be empty";
@@ -105,7 +107,8 @@ module.exports = {
 
       const customer = await Customer.findOne({ email });
 
-      if (customer) throw new ApolloError("this email address is already being used");
+      if (customer)
+        throw new ApolloError("this email address is already being used");
 
       const hashPassword = await bcrypt.hash(password, 6);
 
@@ -116,7 +119,7 @@ module.exports = {
         lastname,
       });
 
-      newCustomer.save()
+      newCustomer.save();
 
       return true;
     },
@@ -132,7 +135,7 @@ module.exports = {
       let customer;
 
       try {
-        customer = await Customer.findOne({ "_id": id });
+        customer = await Customer.findOne({ _id: id });
       } catch (error) {
         throw new UserInputError("wrong id");
       } finally {
@@ -142,6 +145,27 @@ module.exports = {
       customer.deleteOne();
 
       return true;
+    },
+    adminMassDeleteCustomers: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+
+      const { customerIds } = args;
+
+      if (customerIds.length === 0) {
+        throw new UserInputError("bad input");
+      }
+
+      let result = true;
+
+      try {
+        await Customer.deleteMany({
+          "_id": { $in: customerIds },
+        });
+      } catch (error) {
+        result = false;
+      }
+
+      return result;
     },
     adminUpdateCustomer: async (_, args, { user }) => {
       if (!user) throw new AuthenticationError("Unauthenticated");
@@ -155,9 +179,9 @@ module.exports = {
       let customer;
 
       try {
-        customer = await Customer.findOne({ "_id": id });
+        customer = await Customer.findOne({ _id: id });
       } catch (error) {
-        throw new UserInputError("wrong id")
+        throw new UserInputError("wrong id");
       } finally {
         if (!customer) throw new UserInputError("wrong id");
       }
@@ -181,7 +205,7 @@ module.exports = {
       }
 
       if (Object.keys(updates).length === 0) {
-        throw new UserInputError("data is not provided")
+        throw new UserInputError("data is not provided");
       }
 
       await customer.updateOne(updates);
@@ -189,6 +213,6 @@ module.exports = {
       customer.save();
 
       return true;
-    }
+    },
   },
 };
