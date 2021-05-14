@@ -60,42 +60,28 @@ module.exports = {
     adminAddCategory: async (_, args, { user }) => {
       if (!user) throw new AuthenticationError("Unauthenticated");
 
-      const { categoryData: { title = "", parent } } = args;
+      const { categoryData: { title = "", parent = "" } } = args;
 
-      if (!title.trim().length) {
+      if (!title.trim()) {
         throw new UserInputError("bad input");
       }
 
-      let result = true;
+      if (parent.trim()) {
+        try {
+          const res = await Category.exists({ _id: parent });
 
-      try {
-        await Category.create({ title, parent });
-      } catch (error) {
-        result = false;
-      }
-
-      return result;
-    },
-
-    adminMassDeleteCategories: async (_, args, { user }) => {
-      if (!user) throw new AuthenticationError("Unauthenticated");
-
-      const { categoryIds } = args;
-
-      if (!categoryIds.length) {
-        throw new UserInputError("bad input");
-      }
-
-      let result = true;
-
-      try {
-        const res = await Category.deleteMany({
-          "_id": { $in: categoryIds },
-        });
-
-        if (res.deletedCount < 1) {
-          throw new Error("categories not found");
+          if (!res) {
+            throw new UserInputError("parent not found");
+          }
+        } catch (error) {
+          throw new UserInputError("parent not found");
         }
+      }
+
+      let result = true;
+
+      try {
+        await Category.create({ title: title.trim(), parent });
       } catch (error) {
         result = false;
       }
@@ -120,15 +106,30 @@ module.exports = {
         throw new UserInputError("bad input (title)");
       }
 
+      if (typeof categoryData.parent === "string" && categoryData.parent.trim()) {
+        try {
+          const res = await Category.exists({ _id: categoryData.parent });
+
+          if (!res) {
+            throw new UserInputError("parent not found");
+          }
+        } catch (error) {
+          throw new UserInputError("parent not found");
+        }
+      }
+
       let result = true;
 
       try {
-        await Category.findOneAndUpdate(
+        const res = await Category.findOneAndUpdate(
           { _id: categoryId },
           categoryData,
           { useFindAndModify: false }
         );
 
+        if (!res) {
+          throw new UserInputError("category not found");
+        }
       } catch (error) {
         result = false;
       }
@@ -141,7 +142,7 @@ module.exports = {
 
       const { categoryId = "" } = args;
 
-      if (!categoryId.trim().length) {
+      if (!categoryId.trim()) {
         throw new UserInputError("bad input");
       }
 
@@ -155,7 +156,7 @@ module.exports = {
 
       if (!category) throw new UserInputError("wrong id");
 
-      await Category.deleteMany({ parent: category.title });
+      await Category.deleteMany({ parent: category._id });
 
       await category.deleteOne();
 

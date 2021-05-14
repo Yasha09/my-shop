@@ -27,7 +27,7 @@ module.exports = gql`
 
   input CategoryInputData {
     title: String
-    parent: String
+    parent: ID
   }
 
   type Product {
@@ -69,7 +69,7 @@ module.exports = gql`
   type Category {
     id: ID!
     title: String!
-    parent: String!
+    parent: ID!
   }
 
   type AdminCategoriesResult {
@@ -128,7 +128,6 @@ module.exports = gql`
     adminAddCategory(categoryData: CategoryInputData!): Boolean
     adminUpdateCategory(categoryId: ID!, categoryData: CategoryInputData!): Boolean
     adminDeleteCategory(categoryId: ID!): Boolean
-    adminMassDeleteCategories(categoryIds: [ID]): Boolean
 
     # Review
     createReview(reviewInput: ReviewInput): Review!
