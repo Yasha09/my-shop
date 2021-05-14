@@ -8,13 +8,13 @@ module.exports = {
     ...customerResolvers.Query,
     ...adminResolvers.Query,
     ...productResolvers.Query,
-    ...categoryResolvers.Query
+    ...categoryResolvers.Query,
   },
   Mutation: {
     ...customerResolvers.Mutation,
     ...adminResolvers.Mutation,
     ...productResolvers.Mutation,
-    ...categoryResolvers.Mutation
+    ...categoryResolvers.Mutation,
   },
 };
 

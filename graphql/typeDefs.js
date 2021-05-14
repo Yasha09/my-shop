@@ -23,26 +23,23 @@ module.exports = gql`
     firstname: String,
     lastname: String
   }
-
   type Product {
     _id:ID!
     title: String!,
-    image: String!,
+    image: String,
     brand: String!,
     description: String!,
     price: Float!,
     categories: [Category]!
   }
-
-  input ProductInput{
-    title: String!,
-    image: String!,
-    brand: String!,
-    description: String!,
-    price: Float!
-    categories: [ID]!
-  }
-
+  # input ProductInput{
+  #   title: String!,
+  #   image: String,
+  #   brand: String!,
+  #   description: String!,
+  #   price: Float!
+  #   categories: [ID]!
+  # }
   type Category {
     _id: ID!
     title: String!
@@ -56,6 +53,8 @@ module.exports = gql`
     adminCustomer(id: ID!): Customer!
     products: [Product]!
     categories: [Category]!
+    productById(id:ID): Product!
+    categoryById(id:ID): Category!
   }
 
   type Mutation {
@@ -72,12 +71,22 @@ module.exports = gql`
     login(email: String!, password: String!): Customer!
 
     # product
-    adminCreateProduct(productInput: ProductInput!): Product!
+    # adminCreateProduct(productInput: ProductInput!): Product!
+    adminCreateProduct(
+      title: String!,
+      image: String,
+      brand: String!,
+      description: String!,
+      price: Float!
+      categories: [ID]!
+    ): Product!
     adminUpdateProduct(id: ID!, title: String!): Product! 
     adminDeleteProduct(id:ID!): Product!
-
+    # image
+    adminAddProductImage(id:ID!, image:String):Product!
+    adminDeleteProductImage(id:ID!):Product
     # category
-    adminCreateCategory(title: String!,categories: [ID!]): Category!
+    adminCreateCategory(title: String!,products: [ID!]): Category!
     adminUpdateCategory(id: ID!, title: String!): Category!
     adminDeleteCategory(id:ID!): Category!
   }
