@@ -9,8 +9,74 @@ module.exports = {
   },
   Product: {
     categories: async (product) => {
-      // console.log((await product.populate("categories").execPopulate()).categories);
       return (await product.populate("categories").execPopulate()).categories;
     },
   },
+  Category: {
+    products: async (category) => {
+      return (await category.populate("products").execPopulate()).products;
+    },
+  },
+  Cart: {
+    customerId: async (cart) => {
+      return (await cart.populate("customerId").execPopulate()).customerId;
+    },
+    // items: async (cart) => {
+    //   console.log("cart ", cart);
+    //   return await cart
+    //     .populate({
+    //       path: "items",
+    //       populate: {
+    //         path: "productId",
+    //         model: "Product",
+    //       },
+    //     })
+    //     .exec((err, data) => {
+    //       console.log("data ",data);
+    //     });
+    // },
+  },
+  // CartItem: {
+  //   productId: async (cart) => {
+  //     console.log("cart ", cart);
+  //     return (
+  //       await cart
+  //         .populate({
+  //           path: "items",
+  //           populate: {
+  //             path: "productId",
+  //             model: "Product",
+  //           },
+  //         })
+  //         .execPopulate()
+  //     ).then((data) => console.log("data", data));
+  //   },
+  // },
+  // CartItem: {
+  //   procuctId: async (cart) => {
+  //     return await cart
+  //       .populate({
+  //         path: "items",
+  //         populate: {
+  //           path: "productId",
+  //           model: "Product",
+  //         },
+  //       })
+  //       .execPopulate()
+  //       .then((data) => console.log(data));
+  //   },
+  // },
+  // --------
+  // await Cart.findOne({ customerId, active: true })
+  // .populate({
+  //   path: "items",
+  //   populate: {
+  //     path: "productId",
+  //     model: "Product",
+  //   },
+  // })
+  // .exec((err, doc) => {
+  //   //  console.log("product ",doc.items[0].productId);
+  //   return (data = doc);
+  // });
 };

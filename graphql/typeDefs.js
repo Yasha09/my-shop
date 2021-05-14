@@ -34,7 +34,18 @@ module.exports = gql`
     price: Float!
     categories: [Category]!
   }
-
+  type CartItem {
+    productId: Product
+    quantity: Float
+    price: Float
+    total: Float
+  }
+  type Cart {
+    _id: ID
+    customerId: Customer
+    items: [CartItem]
+    subTotal: Float
+  }
   input ProductInput {
     title: String!
     image: String
@@ -115,5 +126,11 @@ module.exports = gql`
     createReview(reviewInput: ReviewInput): Review!
     deleteReview(reviewId: ID): Review!
     adminDeleteReviews(reviewIds: [ID]): Boolean!
+
+    # Cart
+    addToCart(customerId: ID, productId: ID, quantity: Float): Cart!
+    decreaseCartItem(customerId: ID, productId: ID, quantity: Float): Cart!
+    removeItemFromCart(customerId: ID, productId: ID): Cart!
+    clearCart(customerId:ID):Boolean!
   }
 `;
