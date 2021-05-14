@@ -2,30 +2,45 @@ const path = require("path");
 const express = require("express");
 const multer = require("multer");
 const app = express();
+const { promisify } = require('util')
+const fs = require('fs')
+const unlinkAsync = promisify(fs.unlink);
+const productsModel  = require('./graphql/resolvers/product');
 
-//cb-callback, null 1 param -err, file name->image path
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./images");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "--" + file.originalname);
+    cb(null, Date.now() + "--" + path.extname(file.originalname));
   },
 });
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
+app.use(express.static(__dirname + '/images'));
+app.use('/images', express.static(__dirname + '/images'));
 
-const upload = multer({ storage: fileStorage });
+app.get("/images", (req, res) => { });
 
-//single image
+const upload = multer({ storage: fileStorage});
+
 app.post("/single", upload.single("image"), (req, res) => {
-  console.log(req.file);
-  res.send("File upload success");
+  let product = req.body;
+  product.image = req.file;
+  let images =  product.image;
+  productsModel.Mutation.adminCreateProduct("",{product,images});
+   res.send("File upload success");
 });
-//a few images
-app.post("/multiple", upload.array("images", 3), (req, res) => {
-  console.log(req.files);
-  res.send("Multiple Files Upload Success");
+app.post('/deleteImage', upload.single("image"), async (req, res) =>{
+  let productId = req.body.product_id;
+  let product = product.Query.productById("", productId);
+  let image = product.image;
+
+  await unlinkAsync("/images/" + image);
+
+  product.Mutation.adminDeleteProductImage("", product.id);
 });
-app.listen(4000);
+//image by productID
+// app.post("/single", upload.single("image"), (req, res) => {
+//   req.file.product_id = req.body.product_id;
+//   productsModel.Mutation.adminAddProductImage("",req.file);
+//   res.send("File upload success");
+// });

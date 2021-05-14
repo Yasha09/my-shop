@@ -57,6 +57,7 @@ module.exports = {
             model: "Product",
           },
         });
+        console.log("cart ", cart);
         return cart;
       } catch (err) {
         console.log(err);

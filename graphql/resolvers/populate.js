@@ -12,11 +12,6 @@ module.exports = {
       return (await product.populate("categories").execPopulate()).categories;
     },
   },
-  Category: {
-    products: async (category) => {
-      return (await category.populate("products").execPopulate()).products;
-    },
-  },
   Cart: {
     customerId: async (cart) => {
       return (await cart.populate("customerId").execPopulate()).customerId;

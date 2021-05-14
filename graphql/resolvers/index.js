@@ -13,7 +13,6 @@ module.exports = {
     ...adminResolvers.Query,
     ...productResolvers.Query,
     ...categoryResolvers.Query,
-    ...reviewResolvers.Query,
   },
   Mutation: {
     ...customerResolvers.Mutation,
