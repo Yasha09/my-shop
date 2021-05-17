@@ -5,10 +5,12 @@ dotenv.config();
 
 module.exports = {
   Mutation: {
-    addToCart: async (_, { productId, customerId, quantity }) => {
+    addToCart: async (_, { productId, quantity }, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
       try {
-        let cart = await Cart.findOne({ customerId, active: true });
+        let cart = await Cart.findOne({ customerId: user.id, active: true });
         let productDetails = await Product.findById(productId);
+        console.log("cart ", cart);
         if (cart) {
           // cart exists for customer
           let productIndex = cart.items.findIndex(
@@ -37,7 +39,7 @@ module.exports = {
         } else {
           // if there is no user with a cart
           cart = await Cart({
-            customerId,
+            customerId: user.id,
             items: [
               {
                 productId,
@@ -50,7 +52,10 @@ module.exports = {
           });
         }
         await cart.save();
-        cart = await Cart.findOne({ customerId, active: true }).populate({
+        cart = await Cart.findOne({
+          customerId: user.id,
+          active: true,
+        }).populate({
           path: "items",
           populate: {
             path: "productId",
@@ -64,10 +69,10 @@ module.exports = {
         throw err;
       }
     },
-    decreaseCartItem: async (_, { productId, customerId, quantity }) => {
-      console.log("args ", productId, customerId, quantity);
+    decreaseCartItem: async (_, { productId, quantity }, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
       try {
-        let cart = await Cart.findOne({ customerId, active: true });
+        let cart = await Cart.findOne({ customerId: user.id, active: true });
         let productDetails = await Product.findById(productId);
         if (cart) {
           // cart exists for customer
@@ -87,7 +92,10 @@ module.exports = {
               .reduce((acc, next) => acc + next);
           }
           await cart.save();
-          let res = await Cart.findOne({ customerId, active: true }).populate({
+          let res = await Cart.findOne({
+            customerId: user.id,
+            active: true,
+          }).populate({
             path: "items",
             populate: {
               path: "productId",
@@ -101,8 +109,10 @@ module.exports = {
         throw err;
       }
     },
-    removeItemFromCart: async (_, { customerId, productId }) => {
-      let cart = await Cart.findOne({ customerId, active: true });
+
+    removeItemFromCart: async (_, { productId }, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      let cart = await Cart.findOne({ customerId: user.id, active: true });
       let productIndex = cart.items.findIndex((p) => p.productId == productId);
       if (cart && productIndex > -1) {
         cart.items.splice(productIndex, 1);
@@ -114,11 +124,24 @@ module.exports = {
           cart.subTotal = 0;
         }
       }
-      return await cart.save();
+      await cart.save();
+      let res = await Cart.findOne({
+        customerId: user.id,
+        active: true,
+      }).populate({
+        path: "items",
+        populate: {
+          path: "productId",
+          model: "Product",
+        },
+      });
+      return res;
     },
-    clearCart: async (_, { customerId }) => {
+
+    clearCart: async (_, __, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
       let result = await Cart.findOneAndUpdate(
-        { customerId, active: true },
+        { customerId: user.id, active: true },
         {
           $set: {
             subTotal: 0,

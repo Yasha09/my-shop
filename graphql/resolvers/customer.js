@@ -36,6 +36,7 @@ module.exports = {
           errors.confirmPassword = "confirmPassword must not ne empty";
 
         if (Object.keys(errors).length > 0) {
+          console.log("errors ", errors);
           throw errors;
         }
 
@@ -61,13 +62,22 @@ module.exports = {
           },
           process.env.JWT_SECRET,
           {
-            expiresIn: 60 * 60,
+            expiresIn: 120 * 60,
           }
         );
         res.token = token;
         return res;
       } catch (err) {
-        console.log(err);
+        if (err.name === "MongoError") {
+          errors[Object.keys(err.keyValue)] = `User with this ${Object.keys(
+            err.keyValue
+          )} is already exists`;
+        }
+        if (err.name === "ValidationError") {
+          errors[Object.keys(err.errors)] = `${Object.values(err.errors).map(
+            (val) => val.message
+          )}`;
+        }
         throw new UserInputError("Bad input", { errors });
       }
     },
@@ -88,7 +98,7 @@ module.exports = {
         // DB Check if customer has
         const customer = await Customer.findOne({ email });
         if (!customer) {
-          errors.email = "user not found";
+          errors.email = "user not found with this email";
           throw new UserInputError("Customer not found", { errors });
         }
         // Check password
@@ -111,14 +121,12 @@ module.exports = {
           },
           process.env.JWT_SECRET,
           {
-            expiresIn: 60 * 60,
+            expiresIn: 120 * 60,
           }
         );
-
-        return {
-          ...customer.toJSON(),
-          token,
-        };
+        // console.log("customer ", customer);
+        customer.token = token;
+        return customer;
       } catch (err) {
         console.log(err);
         throw err;

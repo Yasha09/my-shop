@@ -154,9 +154,9 @@ module.exports = gql`
     adminDeleteReviews(reviewIds: [ID]): Boolean!
 
     # Cart
-    addToCart(customerId: ID, productId: ID, quantity: Float): Cart!
-    decreaseCartItem(customerId: ID, productId: ID, quantity: Float): Cart!
-    removeItemFromCart(customerId: ID, productId: ID): Cart!
-    clearCart(customerId: ID): Boolean!
+    addToCart(productId: ID, quantity: Float): Cart!
+    decreaseCartItem(productId: ID, quantity: Float): Cart!
+    removeItemFromCart(productId: ID): Cart!
+    clearCart: Boolean!
   }
 `;

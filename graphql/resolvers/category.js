@@ -9,7 +9,7 @@ module.exports = {
 
       const res = await Category.find();
 
-      return res;
+      return res; 
     },
 
     adminGetCategories: async (_, __, { user }) => {
