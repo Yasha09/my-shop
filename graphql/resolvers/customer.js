@@ -3,6 +3,7 @@ const { UserInputError, AuthenticationError } = require("apollo-server");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const { UniqueArgumentNamesRule } = require("graphql");
 dotenv.config();
 
 module.exports = {
@@ -28,7 +29,7 @@ module.exports = {
 
       try {
         if (firstname.trim() === "")
-          errors.firstname = "firstname must not ne empty";
+          errors.firstname = "firstname must not be empty";
         if (email.trim() === "") errors.email = "email must not ne empty";
         if (password.trim() === "")
           errors.password = "password must not ne empty";
@@ -106,6 +107,7 @@ module.exports = {
           password,
           customer.password
         );
+        console.log("correctPassword ", correctPassword);
         if (!correctPassword) {
           errors.password = "password is incorrect";
           throw new UserInputError("password is incorrect", { errors });
@@ -121,7 +123,7 @@ module.exports = {
           },
           process.env.JWT_SECRET,
           {
-            expiresIn: 120 * 60,
+            expiresIn: 365 * 24 * 60 * 60,
           }
         );
         // console.log("customer ", customer);
@@ -130,6 +132,67 @@ module.exports = {
       } catch (err) {
         console.log(err);
         throw err;
+      }
+    },
+    
+    updateCustomer: async (_, { customerData }, { user }) => {
+      const errors = {};
+      let customer = await Customer.findOne({ _id: user.id });
+      // console.log("customerData ", customer);
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      // console.log(user)
+      let updateData = {};
+
+      try {
+        for (let key in customerData) {
+          let elem = customerData[key];
+          // console.log("elem ",elem)
+          if (elem.trim().length > 0) {
+            if (key === "password") {
+              const correctPassword = await bcrypt.compare(
+                elem,
+                customer.password
+              );
+              console.log("correctPassword ", correctPassword);
+              if (correctPassword) {
+                errors.password = "It is old password ";
+                throw new UserInputError("password is incorrect", { errors });
+              }
+              const hashPassword = await bcrypt.hash(elem, 6);
+              updateData[key] = hashPassword;
+              continue;
+            }
+            updateData[key] = elem;
+          } else {
+            errors[key] = `${elem} must not be empty`;
+          }
+        }
+
+        if (Object.keys(errors).length > 0) {
+          console.log("errors keys", errors);
+          throw errors;
+        }
+        // console.log(updateData);
+        let res = await Customer.findOneAndUpdate(
+          { _id: user.id },
+          { ...updateData },
+          { useFindAndModify: false, new: true }
+        );
+        return res;
+      } catch (err) {
+        console.log("err", err);
+        if (err.name === "MongoError") {
+          errors[Object.keys(err.keyValue)] = `User with this ${Object.keys(
+            err.keyValue
+          )} is already exists`;
+        }
+        if (err.name === "ValidationError") {
+          errors[Object.keys(err.errors)] = `${Object.values(err.errors).map(
+            (val) => val.message
+          )}`;
+        }
+        console.log("errors ", errors);
+        throw new UserInputError("Bad input", { errors });
       }
     },
   },

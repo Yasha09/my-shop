@@ -6,8 +6,6 @@ const typeDefs = require("./graphql/typeDefs");
 const resolvers = require("./graphql/resolvers");
 const auth = require("./util/auth");
 
-
-
 const path = require("path");
 const express = require("express");
 const multer = require("multer");
@@ -39,6 +37,7 @@ app.post("/single", upload.single("image"), (req, res) => {
   productsModel.Mutation.adminCreateProduct("",{product,images});
    res.send("File upload success");
 });
+
 app.post('/deleteImage', upload.single("image"), async (req, res) =>{
   let productId = req.body.product_id;
   let product = product.Query.productById("", productId);
@@ -61,7 +60,7 @@ const server = new ApolloServer({
 mongoose.set("useFindAndModify", false);
 
 mongoose
-  .connect(process.env.DB_URL, {
+  .connect(process.env.MY_DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
