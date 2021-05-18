@@ -50,7 +50,8 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: auth,
-
+  introspection: true,
+  playground: true
 });
 
 mongoose.set("useFindAndModify", false);

@@ -2,7 +2,7 @@ const { gql } = require("apollo-server");
 
 module.exports = gql`
   type Customer {
-    _id: ID!
+    id: ID!
     firstname: String!
     lastname: String!
     email: String!
