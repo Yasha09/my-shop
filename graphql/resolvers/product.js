@@ -1,4 +1,5 @@
 const Product = require("../../models/Product");
+const {UserInputError } = require("apollo-server");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -10,13 +11,19 @@ module.exports = {
       return res;
     }, 
     productById: async (_,args) => {
-      return await Product.findOne({_id: args.id});
+      let result = Product.findOne({_id:args.id }, 
+        function(err, product){
+         product.image = "/images/" + product.image;
+         console.log(product.image)
+         return JSON.stringify(product) 
+        })
+        return result;
     },
   },
   Mutation: {
     //cud product
     adminCreateProduct: async (_, args) => { 
-      // console.log(args);
+       //console.log(args);
       const product = await Product({
         title: args.title,
         brand:args.brand,
@@ -25,13 +32,19 @@ module.exports = {
         price:args.price,
         categories: args.categories
       })
-      return await product.save();
+      try {
+        if (!product) throw new UserInputError("product not found");
+        return await product.save();
+      }catch (err) {
+        console.log(err);
+        throw err;
+      }
     },
     adminAddProductImage: async (_,args) => {
       console.log(args);
       return await Product.updateOne(
         {_id: args.id},
-         { image: args.image }
+        { image: args.image }
       );
     },
     adminDeleteProductImage: async (_,args) => {
@@ -42,38 +55,23 @@ module.exports = {
         },
       );
     },
-    adminUpdateProduct: async (_, { categories, ...args }) => {
-      return await Product.findOneAndUpdate(
-        { _id: args.id },
-        {
-          ...args,
-          $push: { categories: { $each: [...categories] } },
-        },
-        { useFindAndModify: false, new: true }
-      );
+    adminUpdateProduct: async (_, args) => {
+      const { productId = "", productInput } = args;
+      try{
+        const newProduct = await Product.findOneAndUpdate(
+          { _id: productId },
+          productInput,
+          { useFindAndModify: false }
+        )
+        if(!newProduct) throw new UserInputError("product not found");
+      }catch (err) {
+        console.log(err);
+        throw err;
+      }
     },
-    // adminUpdateProduct: async (_, args) => {
-    //   return await Product.findOneAndUpdate(
-    //     { _id: args.id },
-    //     { title: args.title },
-    //     { new: true }
-    //   );
-    // },
-
-    adminDeleteCategoryFromProduct: async (_, { productId, categories }) => {
-      return await Product.findOneAndUpdate(
-        { _id: productId },
-        {
-          $pullAll: {
-            categories: [...categories],
-          },
-        },
-        { useFindAndModify: false, new: true }
-      );
-    },
-
     adminDeleteProduct: async (_, args) => {
       return await Product.findByIdAndRemove({ _id: args.id });
     },
   },
-};
+}
+

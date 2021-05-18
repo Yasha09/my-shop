@@ -4,7 +4,7 @@ const productSchema = new Schema(
   {
     title: {
       type: String,
-      require: [true, "product_id required"],
+      require: true
     },
     image: {
       type: String,
@@ -12,17 +12,14 @@ const productSchema = new Schema(
     brand: {
       type: String,
       required: true,
-      require: [true, "brand required"],
     },
     description: {
       type: String,
       required: true,
-      require: [true, "description required"],
     },
     price: {
       type: Number,
       required: true,
-      require: [true, "price required"],
     },
     categories: [
       {
