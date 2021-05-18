@@ -55,6 +55,7 @@ module.exports = {
         },
       );
     },
+
     // adminUpdateProduct: async (_, args) => {
     //   const { productId = "", productInput } = args;
     //   try{
@@ -67,6 +68,7 @@ module.exports = {
     //     }catch (err) {
     //   }
     // },
+
     adminDeleteProduct: async (_, args) => {
       return await Product.findByIdAndRemove({ _id: args.id });
     },

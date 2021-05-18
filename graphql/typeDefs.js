@@ -62,11 +62,6 @@ module.exports = gql`
   #   categories: [ID]!
   # }
 
-  input CategoryInputData {
-    title: String
-    parent: ID
-  }
-
   # Review
   type Review {
     _id: ID
@@ -84,7 +79,6 @@ module.exports = gql`
     rating: Float
     title: String
   }
-  # Category
   type Category {
     id: ID!
     title: String!
@@ -115,11 +109,10 @@ module.exports = gql`
     categories: [Category]!
     categoryById(id:ID): Category!
     # adminCategory
-    productById(id: ID): Product!
-    getCategoryProducts(categoryId: ID!): CategoryProductsResult!
-    adminGetCategories: AdminCategoriesResult!
-    adminGetCategory(categoryId: ID!): Category!
-    getCategoryProducts(categoryId: ID!): CategoryProductsResult!
+    # productById(id: ID): Product!
+     getCategoryProducts(categoryId: ID!): CategoryProductsResult!
+     adminGetCategories: AdminCategoriesResult!
+     adminGetCategory(categoryId: ID!): Category!
     # review
     reviewsOneProduct(productId: ID): [Review]!
   }
@@ -149,7 +142,7 @@ module.exports = gql`
       price: Float!
       categories: [ID]!
     ): Product!
-    # adminUpdateProduct(productId: ID!,productInput:ProductInput): Product!
+    # adminUpdateProduct(productId: ID!,productInput:ProductInput): Product
     adminDeleteProduct(id:ID!): Product!
     # image
     adminAddProductImage(id:ID!, image:String):Product!
