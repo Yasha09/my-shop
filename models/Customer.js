@@ -23,6 +23,7 @@ const customerSchema = new Schema(
     password: {
       type: String,
       require: [true, "password required"],
+      minLength: [6, "Minimum password length is 6 characters"],
     },
   },
   { timestamps: true }

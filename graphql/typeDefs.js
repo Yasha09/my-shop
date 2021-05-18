@@ -23,12 +23,12 @@ module.exports = gql`
     lastname: String
   }
   type Product {
-    _id:ID!
-    title: String!,
-    image: String,
-    brand: String!,
-    description: String!,
-    price: Float!,
+    _id: ID!
+    title: String!
+    image: String
+    brand: String!
+    description: String!
+    price: Float!
     categories: [Category]!
   }
   input ProductInput{
@@ -38,6 +38,33 @@ module.exports = gql`
     description: String,
     price: Float!
     categories: [ID]!
+  }
+
+  type CartItem {
+    productId: Product
+    quantity: Float
+    price: Float
+    total: Float
+  }
+  
+  type Cart {
+    _id: ID
+    customerId: Customer
+    items: [CartItem]
+    subTotal: Float
+  }
+  # input ProductInput{
+  #   title: String!,
+  #   image: String,
+  #   brand: String!,
+  #   description: String!,
+  #   price: Float!
+  #   categories: [ID]!
+  # }
+
+  input CategoryInputData {
+    title: String
+    parent: ID
   }
 
   # Review
@@ -75,18 +102,6 @@ module.exports = gql`
     title: String
     parent: ID
   }
-  # Cart
-  type CartThing {
-    product_id: Product
-    price: Float
-    quantity: Float
-  }
-  type Cart {
-    _id: ID
-    customer_id: Customer
-    things: [CartThing]
-    total: Float
-  }
 
   type Query {
     customers: [Customer]!
@@ -100,6 +115,8 @@ module.exports = gql`
     categories: [Category]!
     categoryById(id:ID): Category!
     # adminCategory
+    productById(id: ID): Product!
+    getCategoryProducts(categoryId: ID!): CategoryProductsResult!
     adminGetCategories: AdminCategoriesResult!
     adminGetCategory(categoryId: ID!): Category!
     getCategoryProducts(categoryId: ID!): CategoryProductsResult!
@@ -114,6 +131,7 @@ module.exports = gql`
       password: String!
       email: String!
     ): Customer!
+    updateCustomer(customerData: CustomerDataInput): Customer
     adminLogin(email: String!, password: String!): Admin!
     adminAddCustomer(customerData: CustomerDataInput): Boolean
     adminDeleteCustomer(id: ID!): Boolean
@@ -140,19 +158,21 @@ module.exports = gql`
     adminDeleteCategoryFromProduct(productId: ID, categories: [ID]): Product!
     # category
     adminAddCategory(categoryData: CategoryInputData!): Boolean
-    adminUpdateCategory(categoryId: ID!, categoryData: CategoryInputData!): Boolean
+    adminUpdateCategory(
+      categoryId: ID!
+      categoryData: CategoryInputData!
+    ): Boolean
     adminDeleteCategory(categoryId: ID!): Boolean
 
     # Review
     createReview(reviewInput: ReviewInput): Review!
     deleteReview(reviewId: ID): Review!
     adminDeleteReviews(reviewIds: [ID]): Boolean!
-  
-    # Card
-    addProductInCart(product_id: ID, quantity: Float): Cart!
-    delProductInCart(product_id: ID): Cart!
-    deleteCart(cartId: ID): Cart! 
-    # 3 delete cart id
-    # 2 product filter (remove) ev return update new cart
+
+    # Cart
+    addToCart(productId: ID, quantity: Float): Cart!
+    decreaseCartItem(productId: ID, quantity: Float): Cart!
+    removeItemFromCart(productId: ID): Cart!
+    clearCart: Boolean!
   }
 `;

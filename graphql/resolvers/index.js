@@ -4,7 +4,7 @@ const productResolvers = require("./product");
 const categoryResolvers = require("./category");
 const reviewResolvers = require("./review");
 const populateResolvers = require("./populate");
-// const cartResolvers = require("./cart");
+const cartResolvers = require("./cart");
 
 module.exports = {
   ...populateResolvers,
@@ -20,6 +20,6 @@ module.exports = {
     ...productResolvers.Mutation,
     ...categoryResolvers.Mutation,
     ...reviewResolvers.Mutation,
-    // ...cartResolvers.Mutation
+    ...cartResolvers.Mutation,
   },
 };

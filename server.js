@@ -53,7 +53,7 @@ const server = new ApolloServer({
 
 });
 
-mongoose.set('useFindAndModify', false);
+mongoose.set("useFindAndModify", false);
 
 mongoose
   .connect(process.env.DB_URL, {
@@ -61,7 +61,7 @@ mongoose
     useUnifiedTopology: true,
     useFindAndModify: false,
     useCreateIndex: true,
-  }) 
+  })
   .then(() => {
     console.log("Mongodb connected successfully");
     return server.listen(process.env.PORT);

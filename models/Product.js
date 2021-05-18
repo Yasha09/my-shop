@@ -11,15 +11,15 @@ const productSchema = new Schema(
     },
     brand: {
       type: String,
-      required: true,
+      require: [true, "brand required"],
     },
     description: {
       type: String,
-      required: true,
+      require: [true, "description required"],
     },
     price: {
       type: Number,
-      required: true,
+      require: [true, "price required"],
     },
     categories: [
       {
