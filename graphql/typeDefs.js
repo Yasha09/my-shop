@@ -53,14 +53,6 @@ module.exports = gql`
     items: [CartItem]
     subTotal: Float
   }
-  # input ProductInput{
-  #   title: String!,
-  #   image: String,
-  #   brand: String!,
-  #   description: String!,
-  #   price: Float!
-  #   categories: [ID]!
-  # }
 
   # Review
   type Review {
@@ -133,16 +125,8 @@ module.exports = gql`
     login(email: String!, password: String!): Customer!
 
     # product
-    # adminCreateProduct(productInput: ProductInput!): Product!
-    adminCreateProduct(
-      title: String!,
-      image: String,
-      brand: String,
-      description: String,
-      price: Float!
-      categories: [ID]!
-    ): Product!
-    # adminUpdateProduct(productId: ID!,productInput:ProductInput): Product
+    adminCreateProduct(productInput: ProductInput): Product!
+    adminUpdateProduct(productId: ID!,productInput:ProductInput): Product
     adminDeleteProduct(id:ID!): Product!
     # image
     adminAddProductImage(id:ID!, image:String):Product!

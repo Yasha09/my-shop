@@ -22,24 +22,19 @@ module.exports = {
   },
   Mutation: {
     //cud product
-    adminCreateProduct: async (_, args) => { 
-       //console.log(args);
-      const product = await Product({
-        title: args.title,
-        brand:args.brand,
-        description: args.description,
-        image: args.image,
-        price:args.price,
-        categories: args.categories
-      })
-      try {
-        if (!product) throw new UserInputError("product not found");
-        return await product.save();
-      }catch (err) {
-        console.log(err);
-        throw err;
-      }
-    },
+  adminCreateProduct: async (_, args) => { 
+  try {
+    const { productInput } = args;
+    const products = await Product({
+      ...productInput
+    });
+    if (!products) throw new UserInputError("product not found");
+    return await products.save();
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+},
     adminAddProductImage: async (_,args) => {
       console.log(args);
       return await Product.updateOne(
@@ -56,18 +51,20 @@ module.exports = {
       );
     },
 
-    // adminUpdateProduct: async (_, args) => {
-    //   const { productId = "", productInput } = args;
-    //   try{
-    //     const newProduct = await Product.findOneAndUpdate(
-    //       { _id: productId },
-    //       productInput,
-    //       { useFindAndModify: false }
-    //     )
-    //     if(!newProduct) throw new UserInputError("product not found");
-    //     }catch (err) {
-    //   }
-    // },
+    adminUpdateProduct: async (_, args) => {
+      const { productId = "", productInput } = args;
+      try{
+        const newProduct = await Product.findOneAndUpdate(
+          { _id: productId },
+           productInput,
+          { useFindAndModify: false }
+        )
+        if(!newProduct) throw new UserInputError("product not found");
+         return newProduct;
+        }catch (err) {
+          console.log(err);
+      }
+    },
 
     adminDeleteProduct: async (_, args) => {
       return await Product.findByIdAndRemove({ _id: args.id });
