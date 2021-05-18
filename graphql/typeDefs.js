@@ -131,7 +131,7 @@ module.exports = gql`
       price: Float!
       categories: [ID]!
     ): Product!
-    adminUpdateProduct(productId: ID!,productInput:ProductInput): Product!
+    # adminUpdateProduct(productId: ID!,productInput:ProductInput): Product!
     adminDeleteProduct(id:ID!): Product!
     # image
     adminAddProductImage(id:ID!, image:String):Product!

@@ -55,20 +55,18 @@ module.exports = {
         },
       );
     },
-    adminUpdateProduct: async (_, args) => {
-      const { productId = "", productInput } = args;
-      try{
-        const newProduct = await Product.findOneAndUpdate(
-          { _id: productId },
-          productInput,
-          { useFindAndModify: false }
-        )
-        if(!newProduct) throw new UserInputError("product not found");
-      }catch (err) {
-        console.log(err);
-        throw err;
-      }
-    },
+    // adminUpdateProduct: async (_, args) => {
+    //   const { productId = "", productInput } = args;
+    //   try{
+    //     const newProduct = await Product.findOneAndUpdate(
+    //       { _id: productId },
+    //       productInput,
+    //       { useFindAndModify: false }
+    //     )
+    //     if(!newProduct) throw new UserInputError("product not found");
+    //     }catch (err) {
+    //   }
+    // },
     adminDeleteProduct: async (_, args) => {
       return await Product.findByIdAndRemove({ _id: args.id });
     },
