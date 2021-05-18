@@ -137,7 +137,7 @@ module.exports = {
     
     updateCustomer: async (_, { customerData }, { user }) => {
       const errors = {};
-      let customer = await Customer.findOne({ _id: user.id });
+      let customer = await Customer.findOne({ id: user.id });
       // console.log("customerData ", customer);
       if (!user) throw new AuthenticationError("Unauthenticated");
       // console.log(user)
