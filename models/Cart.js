@@ -41,13 +41,3 @@
 // module.exports = { Thing, Cart };
 
 // {user} admin,customer who is login.
-
-
-//tomorrow
-  //product - update + create validation +
-  //cart -
-//evening
-  //cart 2 hours 
-  //customer- 2 hours
-  //UI/Ux -2 hours
-  //grandtotal = subtotal + shipping
