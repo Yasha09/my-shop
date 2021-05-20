@@ -1,16 +1,41 @@
 const { Cart } = require("../../models/Cart");
 const Product = require("../../models/Product");
+const { UserInputError, AuthenticationError } = require("apollo-server");
 const dotenv = require("dotenv");
 dotenv.config();
 
 module.exports = {
+  Query: {
+    cart: async (_, __, { user }) => {
+      try {
+        if (!user) throw new AuthenticationError("Unauthenticated");
+        let cart = await Cart.findOne({
+          customerId: user.id,
+          active: true,
+        }).populate({
+          path: "items",
+          populate: {
+            path: "productId",
+            model: "Product",
+          },
+        });
+        if (cart) {
+          return cart;
+        } else {
+          throw new UserInputError("Cart of customer not found");
+        }
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
+    },
+  },
   Mutation: {
     addToCart: async (_, { productId, quantity }, { user }) => {
       if (!user) throw new AuthenticationError("Unauthenticated");
       try {
         let cart = await Cart.findOne({ customerId: user.id, active: true });
         let productDetails = await Product.findById(productId);
-        console.log("cart ", cart);
         if (cart) {
           // cart exists for customer
           let productIndex = cart.items.findIndex(
@@ -24,7 +49,11 @@ module.exports = {
             cart.items[productIndex].price = productDetails.price;
             cart.subTotal = cart.items
               .map((item) => item.total)
-              .reduce((acc, next) => acc + next);
+              ?.reduce((acc, next) => acc + next);
+            cart.grandTotal = cart.subTotal + cart.shippingTotal;
+            cart.totalQty = cart.items
+              .map((item) => item.quantity)
+              ?.reduce((acc, next) => acc + next);
           } else {
             cart.items.push({
               productId,
@@ -35,10 +64,14 @@ module.exports = {
             cart.subTotal = cart.items
               .map((item) => item.total)
               .reduce((acc, next) => acc + next);
+            cart.grandTotal = cart.subTotal + cart.shippingTotal;
+            cart.totalQty = cart.items
+              .map((item) => item.quantity)
+              ?.reduce((acc, next) => acc + next);
           }
         } else {
           // if there is no user with a cart
-          cart = await Cart({
+          cart = await Cart.create({
             customerId: user.id,
             items: [
               {
@@ -51,8 +84,12 @@ module.exports = {
             subTotal: parseInt(productDetails.price * quantity),
           });
         }
+        cart.grandTotal = cart.subTotal + cart.shippingTotal;
+        cart.totalQty = cart.items
+          ?.map((item) => item.quantity)
+          ?.reduce((acc, next) => acc + next);
         await cart.save();
-        cart = await Cart.findOne({
+        cart = await Cart.findOneAndUpdate({
           customerId: user.id,
           active: true,
         }).populate({
@@ -62,7 +99,6 @@ module.exports = {
             model: "Product",
           },
         });
-        console.log("cart ", cart);
         return cart;
       } catch (err) {
         console.log(err);
@@ -90,6 +126,10 @@ module.exports = {
             cart.subTotal = cart.items
               .map((item) => item.total)
               .reduce((acc, next) => acc + next);
+            cart.grandTotal = cart.subTotal + cart.shippingTotal;
+            cart.totalQty = cart.items
+              .map((item) => item.quantity)
+              ?.reduce((acc, next) => acc + next);
           }
           await cart.save();
           let res = await Cart.findOne({
@@ -120,8 +160,14 @@ module.exports = {
           cart.subTotal = cart.items
             .map((item) => item.total)
             .reduce((acc, next) => acc + next);
+          cart.grandTotal = cart.subTotal + cart.shippingTotal;
+          cart.totalQty = cart.items
+            .map((item) => item.quantity)
+            ?.reduce((acc, next) => acc + next);
         } else if (cart.items.length === 0) {
           cart.subTotal = 0;
+          cart.grandTotal = 0;
+          cart.totalQty = 0;
         }
       }
       await cart.save();
@@ -145,13 +191,48 @@ module.exports = {
         {
           $set: {
             subTotal: 0,
+            grandTotal: 0,
+            totalQty: 0,
             items: [],
           },
         },
         { useFindAndModify: false, new: true }
       );
-      console.log(result);
       return result.items.length === 0 ? true : false;
+    },
+
+    submitShippingAddress: async (_, { customerAddressInput }, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      let errors = {};
+      let updateData = {};
+      try {
+        for (let key in customerAddressInput) {
+          let elem = customerAddressInput[key];
+          if (elem.trim().length > 0) {
+            updateData[key] = elem;
+          } else {
+            errors[key] = `${elem} must not be empty`;
+          }
+        }
+        if (Object.keys(errors).length > 0) {
+          console.log("errors keys", errors);
+          throw errors;
+        }
+        let cart = await Cart.findOneAndUpdate(
+          { customerId: user.id, active: true },
+          { shippingAddress: { ...updateData } },
+          { useFindAndModify: false, new: true }
+        ).populate({
+          path: "items",
+          populate: {
+            path: "productId",
+            model: "Product",
+          },
+        });
+        return cart;
+      } catch (err) {
+        throw new UserInputError("Bad input", { errors });
+      }
     },
   },
 };

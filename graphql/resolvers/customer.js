@@ -114,7 +114,6 @@ module.exports = {
         }
 
         const token = jwt.sign(
-          // { email, name: customer.firstname },
           {
             id: customer._id,
             email: customer.email,
@@ -126,7 +125,6 @@ module.exports = {
             expiresIn: 365 * 24 * 60 * 60,
           }
         );
-        // console.log("customer ", customer);
         customer.token = token;
         return customer;
       } catch (err) {
@@ -134,7 +132,7 @@ module.exports = {
         throw err;
       }
     },
-    
+
     updateCustomer: async (_, { customerData }, { user }) => {
       const errors = {};
       let customer = await Customer.findOne({ _id: user.id });
@@ -153,7 +151,6 @@ module.exports = {
                 elem,
                 customer.password
               );
-              console.log("correctPassword ", correctPassword);
               if (correctPassword) {
                 errors.password = "It is old password ";
                 throw new UserInputError("password is incorrect", { errors });
@@ -194,6 +191,109 @@ module.exports = {
         console.log("errors ", errors);
         throw new UserInputError("Bad input", { errors });
       }
+    },
+    addCustomerAddress: async (_, { customerAddressInput }, { user }) => {
+      const errors = {};
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      let customerInput = {};
+      try {
+        for (let key in customerAddressInput) {
+          let elem = customerAddressInput[key];
+          if (elem.trim().length > 0) {
+            customerInput[key] = elem;
+          } else {
+            errors[key] = `${elem} must not be empty`;
+          }
+        }
+        if (Object.keys(errors).length > 0) {
+          console.log("errors keys", errors);
+          throw errors;
+        }
+        console.log("customerInput ", customerInput);
+        let res = await Customer.findOneAndUpdate(
+          { _id: user.id },
+          { $push: { addresses: customerInput } },
+          { useFindAndModify: false, new: true }
+        );
+        console.log(res);
+        return res;
+      } catch (err) {
+        console.log("err", err);
+        if (err.name === "MongoError") {
+          errors[Object.keys(err.keyValue)] = `User with this ${Object.keys(
+            err.keyValue
+          )} is already exists`;
+        }
+        if (err.name === "ValidationError") {
+          errors[Object.keys(err.errors)] = `${Object.values(err.errors).map(
+            (val) => val.message
+          )}`;
+        }
+        console.log("errors ", errors);
+        throw new UserInputError("Bad input", { errors });
+      }
+    },
+    editCustomerAddres: async (
+      _,
+      { customerAddressId, customerAddressInput },
+      { user }
+    ) => {
+      const errors = {};
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      let customer = await Customer.findOne({ _id: user.id });
+      let addressIndex = customer.addresses.findIndex(
+        (c) => c._id == customerAddressId
+      );
+      let customerInput = {};
+      try {
+        for (let key in customerAddressInput) {
+          let elem = customerAddressInput[key];
+          if (elem.trim().length > 0) {
+            customerInput[key] = elem;
+          } else {
+            errors[key] = `${elem} must not be empty`;
+          }
+        }
+        if (Object.keys(errors).length > 0) {
+          console.log("errors keys", errors);
+          throw errors;
+        }
+        if (addressIndex > -1) {
+          customer.addresses[addressIndex] = Object.assign(
+            customer.addresses[addressIndex],
+            customerInput
+          );
+        }
+        let res = await customer.save();
+        return res;
+      } catch (err) {
+        console.log("err", err);
+        if (err.name === "MongoError") {
+          errors[Object.keys(err.keyValue)] = `User with this ${Object.keys(
+            err.keyValue
+          )} is already exists`;
+        }
+        if (err.name === "ValidationError") {
+          errors[Object.keys(err.errors)] = `${Object.values(err.errors).map(
+            (val) => val.message
+          )}`;
+        }
+        console.log("errors ", errors);
+        throw new UserInputError("Bad input", { errors });
+      }
+    },
+    removeCustomerAddress: async (_, { customerAddressId }, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      let customer = await Customer.findOne({ _id: user.id });
+      let addressIndex = customer.addresses.findIndex(
+        (c) => c._id == customerAddressId
+      );
+      if (addressIndex > -1) {
+        customer.addresses.splice(addressIndex, 1);
+        await customer.save();
+        return true;
+      }
+      return false;
     },
   },
 };

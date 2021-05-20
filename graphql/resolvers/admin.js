@@ -74,7 +74,7 @@ module.exports = {
           throw new UserInputError("password is incorrect", { errors });
         }
         const token = jwt.sign(
-          { email, name: admin.firstname },
+          { email, name: admin.firstname, id: admin.id },
           process.env.JWT_SECRET,
           {
             expiresIn: 365 * 24 * 60 * 60,
@@ -159,7 +159,7 @@ module.exports = {
 
       try {
         await Customer.deleteMany({
-          "_id": { $in: customerIds },
+          _id: { $in: customerIds },
         });
       } catch (error) {
         result = false;

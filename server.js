@@ -60,7 +60,7 @@ const server = new ApolloServer({
 mongoose.set("useFindAndModify", false);
 
 mongoose
-  .connect(process.env.DB_URL, {
+  .connect(process.env.MY_DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
