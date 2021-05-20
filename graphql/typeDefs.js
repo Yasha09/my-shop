@@ -130,12 +130,12 @@ module.exports = gql`
     categories: [Category]!
     categoryById(id:ID): Category!
     # adminCategory
-    # productById(id: ID): Product!
      getCategoryProducts(categoryId: ID!): CategoryProductsResult!
      adminGetCategories: AdminCategoriesResult!
      adminGetCategory(categoryId: ID!): Category!
     # review
     reviewsOneProduct(productId: ID): [Review]!
+    # cart
   }
 
   type Mutation {
@@ -162,21 +162,10 @@ module.exports = gql`
     adminUpdateCustomer(id: ID!, customerData: CustomerDataInput): Boolean
 
     # product
-    # adminCreateProduct(productInput: ProductInput!): Product!
-    adminCreateProduct(
-      title: String!,
-      image: String,
-      brand: String,
-      description: String,
-      price: Float!
-      categories: [ID]!
-    ): Product!
-    # adminUpdateProduct(productId: ID!,productInput:ProductInput): Product
+    adminCreateProduct(productInput:ProductInput): Product!
+    adminUpdateProduct(productId: ID!,productInput:ProductInput): Product
     adminDeleteProduct(id:ID!): Product!
     # image
-    adminAddProductImage(id:ID!, image:String):Product!
-    adminDeleteProductImage(id:ID!):Product
-      
     adminDeleteCategoryFromProduct(productId: ID, categories: [ID]): Product!
     # category
     adminAddCategory(categoryData: CategoryInputData!): Boolean
