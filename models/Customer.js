@@ -1,6 +1,8 @@
 const { Schema, model } = require("mongoose");
 const { isEmail } = require("validator");
 
+const { CustomerAddressSchema } = require("./Address");
+
 const customerSchema = new Schema(
   {
     firstname: {
@@ -25,6 +27,7 @@ const customerSchema = new Schema(
       require: [true, "password required"],
       minLength: [6, "Minimum password length is 6 characters"],
     },
+    addresses: [CustomerAddressSchema],
   },
   { timestamps: true }
 );

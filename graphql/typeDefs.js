@@ -7,6 +7,7 @@ module.exports = gql`
     lastname: String!
     email: String!
     token: String
+    addresses: [Address]
   }
   type Admin {
     id: ID
@@ -41,6 +42,7 @@ module.exports = gql`
   }
 
   type CartItem {
+    id: ID
     productId: Product
     quantity: Float
     price: Float
@@ -48,10 +50,14 @@ module.exports = gql`
   }
   
   type Cart {
-    _id: ID
+    id: ID
     customerId: Customer
     items: [CartItem]
     subTotal: Float
+    shippingTotal: Float
+    grandTotal: Float
+    totalQty: Float
+    shippingAddress: Address
   }
   # input ProductInput{
   #   title: String!,
@@ -62,9 +68,23 @@ module.exports = gql`
   #   categories: [ID]!
   # }
 
-  # Review
+  input CustomerAddressInput {
+    firstname: String
+    lastname: String
+    city: String
+    address: String
+
+    country: String
+  }
+  type Address {
+    firstname: String
+    lastname: String
+    city: String
+    address: String
+    country: String
+  }
   type Review {
-    _id: ID
+    id: ID
     customer_id: Customer
     product_id: Product
     review: String!
@@ -100,6 +120,7 @@ module.exports = gql`
   type Query {
     customers: [Customer]!
     customer: Customer!
+    cart(cartId: ID): Cart
     admin: Admin!
     adminCustomer(id: ID!): Customer!
     # products
@@ -118,6 +139,7 @@ module.exports = gql`
   }
 
   type Mutation {
+    # customer
     register(
       firstname: String!
       lastname: String!
@@ -125,12 +147,19 @@ module.exports = gql`
       email: String!
     ): Customer!
     updateCustomer(customerData: CustomerDataInput): Customer
+    addCustomerAddress(customerAddressInput: CustomerAddressInput): Customer
+    editCustomerAddres(
+      customerAddressId: ID!
+      customerAddressInput: CustomerAddressInput
+    ): Customer
+    removeCustomerAddress(customerAddressId: ID): Boolean
+    login(email: String!, password: String!): Customer!
+
     adminLogin(email: String!, password: String!): Admin!
     adminAddCustomer(customerData: CustomerDataInput): Boolean
     adminDeleteCustomer(id: ID!): Boolean
     adminMassDeleteCustomers(customerIds: [String]): Boolean
     adminUpdateCustomer(id: ID!, customerData: CustomerDataInput): Boolean
-    login(email: String!, password: String!): Customer!
 
     # product
     # adminCreateProduct(productInput: ProductInput!): Product!
@@ -167,5 +196,6 @@ module.exports = gql`
     decreaseCartItem(productId: ID, quantity: Float): Cart!
     removeItemFromCart(productId: ID): Cart!
     clearCart: Boolean!
+    submitShippingAddress(customerAddressInput: CustomerAddressInput): Cart!
   }
 `;

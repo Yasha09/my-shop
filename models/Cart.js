@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const { CustomerAddressSchema } = require("./Address");
+
 let CartItemSchema = new Schema(
   {
     productId: {
@@ -41,6 +43,27 @@ const CartSchema = new Schema(
     subTotal: {
       default: 0,
       type: Number,
+    },
+    shippingTotal: {
+      default: 10,
+      type: Number,
+    },
+    grandTotal: {
+      default: 0,
+      type: Number,
+    },
+    totalQty: {
+      default: 0,
+      type: Number,
+    },
+
+    shippingAddress: CustomerAddressSchema,
+    paymentMethod: {
+      type: String,
+    },
+    shippingMethod: {
+      carrierCode: String,
+      rateId: Number,
     },
   },
   {
