@@ -11,46 +11,28 @@ module.exports = {
       return res;
     }, 
     productById: async (_,args) => {
-      let result = Product.findOne({_id:args.id }, 
+      return await Product.findOne({_id:args.id }, 
         function(err, product){
-         product.image = "/images/" + product.image;
-         console.log(product.image)
-         return JSON.stringify(product) 
+          product.image = "/images/" + product.image;
+          return JSON.stringify(product); 
         })
-        return result;
     },
   },
   Mutation: {
-    //cud product
-  adminCreateProduct: async (_, args) => { 
-  try {
-    const { productInput } = args;
-    const products = await Product({
-      ...productInput
-    });
-    if (!products) throw new UserInputError("product not found");
-    return await products.save();
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
-},
-    adminAddProductImage: async (_,args) => {
-      console.log(args);
-      return await Product.updateOne(
-        {_id: args.id},
-        { image: args.image }
-      );
+    adminCreateProduct: async (_, args) => { 
+      try {
+        const { productInput } = args;
+        const products = await Product({ 
+          ...productInput
+        });
+        if (!products) throw new UserInputError("product not found");
+          return await products.save();
+      } 
+      catch (err) {
+        console.log(err);
+        throw err;
+      }
     },
-    adminDeleteProductImage: async (_,args) => {
-      return await Product.updateOne(
-        {_id: args.id},
-        { 
-          $set: { image: "" }
-        },
-      );
-    },
-
     adminUpdateProduct: async (_, args) => {
       const { productId = "", productInput } = args;
       try{
@@ -60,15 +42,14 @@ module.exports = {
           { useFindAndModify: false }
         )
         if(!newProduct) throw new UserInputError("product not found");
-         return newProduct;
-        }catch (err) {
+          return newProduct;
+        }
+        catch (err) {
           console.log(err);
-      }
+        }
     },
-
     adminDeleteProduct: async (_, args) => {
       return await Product.findByIdAndRemove({ _id: args.id });
     },
   },
 }
-

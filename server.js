@@ -11,10 +11,6 @@ const express = require("express");
 const multer = require("multer");
 const app = express();
 const { promisify } = require('util')
-const fs = require('fs')
-const unlinkAsync = promisify(fs.unlink);
-const productsModel  = require('./graphql/resolvers/product');
-
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./images");
@@ -28,22 +24,13 @@ app.use('/images', express.static(__dirname + '/images'));
 
 app.get("/images", (req, res) => { });
 
+app.get('/', function(request,response){
+  response.sendFile(__dirname + '/index.html')
+});
 const upload = multer({ storage: fileStorage});
 
 app.post("/single", upload.single("image"), (req, res) => {
-  let product = req.body;
-  product.image = req.file.filename;
-  let filename =  product.image;
-  productsModel.Mutation.adminCreateProduct("",{product,filename});
-   res.send("File upload success");
-});
-app.post('/deleteImage', upload.single("image"), async (req, res) =>{
-  let productId = req.body.product_id;
-  let product = product.Query.productById("", productId);
-  let image = product.image;
-  await unlinkAsync("/images/" + image);
-
-  product.Mutation.adminDeleteProductImage("", product.id);
+  res.send({image: req.file.filename});
 });
 
 const server = new ApolloServer({

@@ -40,20 +40,6 @@ module.exports = gql`
     categories: [ID]!
   }
 
-  type CartItem {
-    productId: Product
-    quantity: Float
-    price: Float
-    total: Float
-  }
-  
-  type Cart {
-    _id: ID
-    customerId: Customer
-    items: [CartItem]
-    subTotal: Float
-  }
-
   # Review
   type Review {
     _id: ID
@@ -101,12 +87,12 @@ module.exports = gql`
     categories: [Category]!
     categoryById(id:ID): Category!
     # adminCategory
-    # productById(id: ID): Product!
      getCategoryProducts(categoryId: ID!): CategoryProductsResult!
      adminGetCategories: AdminCategoriesResult!
      adminGetCategory(categoryId: ID!): Category!
     # review
     reviewsOneProduct(productId: ID): [Review]!
+    # cart
   }
 
   type Mutation {
@@ -125,13 +111,10 @@ module.exports = gql`
     login(email: String!, password: String!): Customer!
 
     # product
-    adminCreateProduct(productInput: ProductInput): Product!
+    adminCreateProduct(productInput:ProductInput): Product!
     adminUpdateProduct(productId: ID!,productInput:ProductInput): Product
     adminDeleteProduct(id:ID!): Product!
     # image
-    adminAddProductImage(id:ID!, image:String):Product!
-    adminDeleteProductImage(id:ID!):Product
-      
     adminDeleteCategoryFromProduct(productId: ID, categories: [ID]): Product!
     # category
     adminAddCategory(categoryData: CategoryInputData!): Boolean
@@ -146,10 +129,5 @@ module.exports = gql`
     deleteReview(reviewId: ID): Review!
     adminDeleteReviews(reviewIds: [ID]): Boolean!
 
-    # Cart
-    addToCart(productId: ID, quantity: Float): Cart!
-    decreaseCartItem(productId: ID, quantity: Float): Cart!
-    removeItemFromCart(productId: ID): Cart!
-    clearCart: Boolean!
   }
 `;

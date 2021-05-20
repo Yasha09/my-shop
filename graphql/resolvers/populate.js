@@ -12,25 +12,25 @@ module.exports = {
       return (await product.populate("categories").execPopulate()).categories;
     },
   },
-  Cart: {
-    customerId: async (cart) => {
-      return (await cart.populate("customerId").execPopulate()).customerId;
-    },
-    // items: async (cart) => {
-    //   console.log("cart ", cart);
-    //   return await cart
-    //     .populate({
-    //       path: "items",
-    //       populate: {
-    //         path: "productId",
-    //         model: "Product",
-    //       },
-    //     })
-    //     .exec((err, data) => {
-    //       console.log("data ",data);
-    //     });
-    // },
-  },
+  // Cart: {
+  //   customerId: async (cart) => {
+  //     return (await cart.populate("customerId").execPopulate()).customerId;
+  //   },
+  //   // items: async (cart) => {
+  //   //   console.log("cart ", cart);
+  //   //   return await cart
+  //   //     .populate({
+  //   //       path: "items",
+  //   //       populate: {
+  //   //         path: "productId",
+  //   //         model: "Product",
+  //   //       },
+  //   //     })
+  //   //     .exec((err, data) => {
+  //   //       console.log("data ",data);
+  //   //     });
+  //   // },
+  // },
   // CartItem: {
   //   productId: async (cart) => {
   //     console.log("cart ", cart);
