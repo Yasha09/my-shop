@@ -12,10 +12,11 @@ module.exports = {
       return (await product.populate("categories").execPopulate()).categories;
     },
   },
-  // Cart: {
-  //   customerId: async (cart) => {
-  //     return (await cart.populate("customerId").execPopulate()).customerId;
-  //   },
+  Cart: {
+    customerId: async (cart) => {
+      return (await cart.populate("customerId").execPopulate()).customerId;
+    },
+  },
   //   // items: async (cart) => {
   //   //   console.log("cart ", cart);
   //   //   return await cart
