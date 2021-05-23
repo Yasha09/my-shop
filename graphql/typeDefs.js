@@ -92,6 +92,50 @@ module.exports = gql`
     total: Int
   }
 
+  type CustomerOrdersResult {
+    items: [Order]
+    total: Int
+  }
+
+  type AdminOrdersResult {
+    items: [Order]
+    total: Int
+  }
+
+  type OrderItem {
+    id: ID!
+    productId: ID!
+    name: String
+    quantity: Int
+    price: Float
+  }
+
+  type OrderCustomer {
+    firstname: String
+    lastname: String
+    email: String
+  }
+
+  type Order {
+    id: ID!
+    orderNumber: Int
+    createdAt: String
+    userId: ID
+    shippingTotal: Float
+    subTotal: Float
+    grandTotal: Float
+    items: [OrderItem]
+    totalQty: Int
+    orderStatus: String
+    customer: OrderCustomer
+  }
+
+  type SubmitOrderResponse {
+    orderId: ID
+    orderNumber: Int
+    totalPrice: Float
+  }
+
   type Query {
     customers: [Customer]!
     customer: Customer!
@@ -106,6 +150,12 @@ module.exports = gql`
     adminGetCategory(categoryId: ID!): Category!
     # review
     reviewsOneProduct(productId: ID): [Review]!
+
+    # order
+    customerOrders: CustomerOrdersResult
+    customerOrder(orderId: ID!): Order
+    adminOrders: AdminOrdersResult
+    adminOrder(orderId: ID!): Order
   }
 
   type Mutation {
@@ -158,5 +208,11 @@ module.exports = gql`
     decreaseCartItem(productId: ID, quantity: Float): Cart!
     removeItemFromCart(productId: ID): Cart!
     clearCart: Boolean!
+
+    # order
+    submitOrder(cartId: ID!): SubmitOrderResponse
+    adminDeleteOrder(orderId: ID!): Boolean
+    adminMassDeleteOrders(orderIds: [ID]!): Boolean
+    adminChangeOrderStatus(orderId: ID!, status: String!): Order
   }
 `;
