@@ -8,6 +8,7 @@ const auth = require("./util/auth");
 
 const path = require("path");
 const express = require("express");
+
 const multer = require("multer");
 const app = express();
 const { promisify } = require('util')
@@ -27,11 +28,21 @@ app.get("/images", (req, res) => { });
 app.get('/', function(request,response){
   response.sendFile(__dirname + '/index.html')
 });
-const upload = multer({ storage: fileStorage});
+const upload = multer({ storage: fileStorage}).single('file');
 
-app.post("/single", upload.single("image"), (req, res) => {
-  res.send({image: req.file.filename});
+// app.post("/single", upload.single("image"), (req, res) => {
+//   res.send({image: req.file.filename});
+// });
+
+app.post('/single', (req, res) => {
+  upload(req, res, (err) => {
+    if (err) {
+      res.sendStatus(500);
+    }
+    res.send(JSON.stringify({ image: req.file.filename}));
+  });
 });
+
 
 const server = new ApolloServer({
   typeDefs,

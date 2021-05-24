@@ -92,7 +92,6 @@ module.exports = gql`
      adminGetCategory(categoryId: ID!): Category!
     # review
     reviewsOneProduct(productId: ID): [Review]!
-    # cart
   }
 
   type Mutation {
@@ -111,10 +110,9 @@ module.exports = gql`
     login(email: String!, password: String!): Customer!
 
     # product
-    adminCreateProduct(productInput:ProductInput): Product!
+    adminCreateProduct(productInput: ProductInput): Product!
     adminUpdateProduct(productId: ID!,productInput:ProductInput): Product
     adminDeleteProduct(id:ID!): Product!
-    # image
     adminDeleteCategoryFromProduct(productId: ID, categories: [ID]): Product!
     # category
     adminAddCategory(categoryData: CategoryInputData!): Boolean
@@ -128,6 +126,5 @@ module.exports = gql`
     createReview(reviewInput: ReviewInput): Review!
     deleteReview(reviewId: ID): Review!
     adminDeleteReviews(reviewIds: [ID]): Boolean!
-
   }
 `;
