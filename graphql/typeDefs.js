@@ -135,7 +135,6 @@ module.exports = gql`
      adminGetCategory(categoryId: ID!): Category!
     # review
     reviewsOneProduct(productId: ID): [Review]!
-    # cart
   }
 
   type Mutation {
@@ -162,10 +161,9 @@ module.exports = gql`
     adminUpdateCustomer(id: ID!, customerData: CustomerDataInput): Boolean
 
     # product
-    adminCreateProduct(productInput:ProductInput): Product!
+    adminCreateProduct(productInput: ProductInput): Product!
     adminUpdateProduct(productId: ID!,productInput:ProductInput): Product
     adminDeleteProduct(id:ID!): Product!
-    # image
     adminDeleteCategoryFromProduct(productId: ID, categories: [ID]): Product!
     # category
     adminAddCategory(categoryData: CategoryInputData!): Boolean

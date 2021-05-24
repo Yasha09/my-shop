@@ -37,7 +37,7 @@ module.exports = {
       );
     },
     adminDeleteReviews: async (_, { reviewIds }, { user }) => {
-      if (!user) throw new AuthenticationError("Unauthenticated");
+     if (!user) throw new AuthenticationError("Unauthenticated");
       let removedData = await Review.deleteMany({
         _id: {
           $in: [...reviewIds],
