@@ -58,12 +58,14 @@ const CartSchema = new Schema(
     },
 
     shippingAddress: CustomerAddressSchema,
+    billingAddress: CustomerAddressSchema,
+    
     paymentMethod: {
-      type: String,
+      methodCode: String,
     },
     shippingMethod: {
       carrierCode: String,
-      rateId: Number,
+      rateId: String,
     },
   },
   {

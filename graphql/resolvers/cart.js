@@ -71,7 +71,7 @@ module.exports = {
           }
         } else {
           // if there is no user with a cart
-          cart = await Cart.create({
+          cart = await new Cart({
             customerId: user.id,
             items: [
               {
@@ -89,7 +89,8 @@ module.exports = {
           ?.map((item) => item.quantity)
           ?.reduce((acc, next) => acc + next);
         await cart.save();
-        cart = await Cart.findOneAndUpdate({
+
+        cart = await Cart.findOne({
           customerId: user.id,
           active: true,
         }).populate({
@@ -109,6 +110,7 @@ module.exports = {
       if (!user) throw new AuthenticationError("Unauthenticated");
       try {
         let cart = await Cart.findOne({ customerId: user.id, active: true });
+
         let productDetails = await Product.findById(productId);
         if (cart) {
           // cart exists for customer
@@ -118,7 +120,6 @@ module.exports = {
           if (productIndex > -1) {
             let qty = cart.items[productIndex].quantity - quantity;
             qty = qty > 0 ? qty : 1;
-            console.log(qty);
             cart.items[productIndex].quantity = qty;
             cart.items[productIndex].total =
               cart.items[productIndex].quantity * productDetails.price;
@@ -154,6 +155,7 @@ module.exports = {
       if (!user) throw new AuthenticationError("Unauthenticated");
       let cart = await Cart.findOne({ customerId: user.id, active: true });
       let productIndex = cart.items.findIndex((p) => p.productId == productId);
+
       if (cart && productIndex > -1) {
         cart.items.splice(productIndex, 1);
         if (cart.items.length > 0) {
@@ -231,6 +233,111 @@ module.exports = {
         });
         return cart;
       } catch (err) {
+        console.log(err);
+        throw new UserInputError("Bad input", { errors });
+      }
+    },
+
+    submitBillingAddress: async (_, { customerAddressInput }, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      let errors = {};
+      let updateData = {};
+      try {
+        for (let key in customerAddressInput) {
+          let elem = customerAddressInput[key];
+          if (elem.trim().length > 0) {
+            updateData[key] = elem;
+          } else {
+            errors[key] = `${elem} must not be empty`;
+          }
+        }
+        if (Object.keys(errors).length > 0) {
+          console.log("errors keys", errors);
+          throw errors;
+        }
+        let cart = await Cart.findOneAndUpdate(
+          { customerId: user.id, active: true },
+          { billingAddress: { ...updateData } },
+          { useFindAndModify: false, new: true }
+        ).populate({
+          path: "items",
+          populate: {
+            path: "productId",
+            model: "Product",
+          },
+        });
+        return cart;
+      } catch (err) {
+        console.log(err);
+        throw new UserInputError("Bad input", { errors });
+      }
+    },
+
+    submitShippingMethod: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      let errors = {};
+      let updateData = {};
+      try {
+        for (let key in args) {
+          let elem = args[key];
+          if (elem.trim().length > 0) {
+            updateData[key] = elem;
+          } else {
+            errors[key] = `${elem} must not be empty`;
+          }
+        }
+        if (Object.keys(errors).length > 0) {
+          console.log("errors keys", errors);
+          throw errors;
+        }
+        let cart = await Cart.findOneAndUpdate(
+          { customerId: user.id, active: true },
+          { shippingMethod: { ...updateData } },
+          { useFindAndModify: false, new: true }
+        ).populate({
+          path: "items",
+          populate: {
+            path: "productId",
+            model: "Product",
+          },
+        });
+        return cart;
+      } catch (err) {
+        console.log(err);
+        throw new UserInputError("Bad input", { errors });
+      }
+    },
+    submitPaymentMethod: async (_, args, { user }) => {
+      if (!user) throw new AuthenticationError("Unauthenticated");
+      let errors = {};
+      let updateData = {};
+      try {
+        for (let key in args) {
+          let elem = args[key];
+          if (elem.trim().length > 0) {
+            updateData[key] = elem;
+          } else {
+            errors[key] = `${elem} must not be empty`;
+          }
+        }
+        if (Object.keys(errors).length > 0) {
+          console.log("errors keys", errors);
+          throw errors;
+        }
+        let cart = await Cart.findOneAndUpdate(
+          { customerId: user.id, active: true },
+          { paymentMethod: { ...updateData } },
+          { useFindAndModify: false, new: true }
+        ).populate({
+          path: "items",
+          populate: {
+            path: "productId",
+            model: "Product",
+          },
+        });
+        return cart;
+      } catch (err) {
+        console.log(err);
         throw new UserInputError("Bad input", { errors });
       }
     },

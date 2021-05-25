@@ -175,6 +175,19 @@ module.exports = {
           { ...updateData },
           { useFindAndModify: false, new: true }
         );
+        const token = jwt.sign(
+          {
+            id: res.id,
+            email: res.email,
+            firstname: res.firstname,
+            lastname: res.lastname,
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: 365 * 24 * 60 * 60,
+          }
+        );
+        res.token = token;
         return res;
       } catch (err) {
         console.log("err", err);
