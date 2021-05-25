@@ -58,6 +58,16 @@ module.exports = gql`
     grandTotal: Float
     totalQty: Float
     shippingAddress: Address
+    billingAddress: Address
+    paymentMethod: PaymentMethod
+    shippingMethod: ShippingMethod
+  }
+  type ShippingMethod {
+    carrierCode: String
+    rateId: String
+  }
+  type PaymentMethod {
+    methodCode: String
   }
   # input ProductInput{
   #   title: String!,
@@ -184,5 +194,8 @@ module.exports = gql`
     removeItemFromCart(productId: ID): Cart!
     clearCart: Boolean!
     submitShippingAddress(customerAddressInput: CustomerAddressInput): Cart!
+    submitBillingAddress(customerAddressInput: CustomerAddressInput): Cart!
+    submitShippingMethod(carrierCode: String, rateId: String): Cart
+    submitPaymentMethod(methodCode: String): Cart
   }
 `;
