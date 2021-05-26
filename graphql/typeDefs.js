@@ -126,7 +126,11 @@ module.exports = gql`
     title: String
     parent: ID
   }
-
+  type ProductPagination{
+    totalQty:Float
+    pages:Float
+    products:[Product]
+  }
   type Query {
     customers: [Customer]!
     customer: Customer!
@@ -134,7 +138,10 @@ module.exports = gql`
     admin: Admin!
     adminCustomer(id: ID!): Customer!
     # products
-    products: [Product]!
+    products(limit:Float page:Float): ProductPagination!
+    productsByA_Z(limit:Float page:Float,sortBy:Float): ProductPagination!
+    productsByPrice(limit:Float page:Float,sortBy:Float): ProductPagination!
+    productByName(productName:String!):Product
     productById(id:ID): Product!
     # categories
     categories: [Category]!

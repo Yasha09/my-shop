@@ -1,13 +1,59 @@
 const Product = require("../../models/Product");
-const {UserInputError } = require("apollo-server");
+const { UserInputError } = require("apollo-server");
 const dotenv = require("dotenv");
 dotenv.config();
 
 module.exports = {
   Query: {
     // get products
-    products: async () => {
-      const res = await Product.find();
+    products: async (_, { limit, page }) => {
+      const res = await Product.find()
+        .sort({createdAt:-1})
+        .limit(limit)
+        .skip((page - 1) * limit);
+      let totalQty = await Product.countDocuments();
+      return {
+        totalQty,
+        pages: Math.ceil(totalQty / limit),
+        products: res,
+      };
+    },
+    productsByA_Z: async (_, { limit, page, sortBy }) => {
+      const res = await Product.find()
+        .limit(limit)
+        .skip((page - 1) * limit)
+        .sort({ title: sortBy });
+      let totalQty = await Product.countDocuments();
+      return {
+        totalQty,
+        pages: Math.ceil(totalQty / limit),
+        products: res,
+      };
+    },
+    productsByPrice: async (_, { limit, page, sortBy }) => {
+      const res = await Product.find()
+        .limit(limit)
+        .skip((page - 1) * limit)
+        .sort({ price: sortBy });
+      let totalQty = await Product.countDocuments();
+      return {
+        totalQty,
+        pages: Math.ceil(totalQty / limit),
+        products: res,
+      };
+    },
+    productByName: async (_, args) => {
+      const errors = {};
+      const {productName}=args
+      if(productName.trim()===""){
+        errors.productName="Produc name must not by empty"
+      }
+      let res = await Product.findOne({ title: productName });
+      try {
+        if (!res) throw new UserInputError("product not found");
+      } catch (err) {
+        throw new UserInputError("Bad input", { errors });
+      }
       return res;
     }, 
     productById: async (_,args) => {
