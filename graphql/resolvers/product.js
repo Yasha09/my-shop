@@ -1,8 +1,8 @@
 const Product = require("../../models/Product");
-const { UserInputError } = require("apollo-server");
+const {UserInputError } = require("apollo-server");
+const {getSkip, limit }= require('../public/global')
 const dotenv = require("dotenv");
 dotenv.config();
-
 module.exports = {
   Query: {
     // get products
@@ -89,10 +89,10 @@ module.exports = {
         )
         if(!newProduct) throw new UserInputError("product not found");
           return newProduct;
-        }
-        catch (err) {
+      }
+      catch (err) {
           console.log(err);
-        }
+      }
     },
     adminDeleteProduct: async (_, args) => {
       return await Product.findByIdAndRemove({ _id: args.id });

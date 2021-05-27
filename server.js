@@ -5,7 +5,7 @@ dotenv.config();
 const typeDefs = require("./graphql/typeDefs");
 const resolvers = require("./graphql/resolvers");
 const auth = require("./util/auth");
-
+const cors = require('cors')
 const path = require("path");
 const express = require("express");
 

@@ -32,6 +32,10 @@ module.exports = gql`
     price: Float!
     categories: [Category]!
   }
+#   enum Sort {
+#   asc
+#   desc
+# }
   input ProductInput{
     title: String!,
     image: String,
@@ -69,21 +73,12 @@ module.exports = gql`
   type PaymentMethod {
     methodCode: String
   }
-  # input ProductInput{
-  #   title: String!,
-  #   image: String,
-  #   brand: String!,
-  #   description: String!,
-  #   price: Float!
-  #   categories: [ID]!
-  # }
 
   input CustomerAddressInput {
     firstname: String
     lastname: String
     city: String
     address: String
-
     country: String
   }
   type Address {
@@ -131,6 +126,24 @@ module.exports = gql`
     pages:Float
     products:[Product]
   }
+
+  type Slide {
+    id: ID
+    name: String
+    image: String
+    content: String
+    contentPosition: String
+  }
+  type Slider {
+    id: ID
+    title: String
+    slides: [Slide]
+  }
+  # input SliderInput {
+  #   title: String
+  #   slides: [Slide]
+  # }
+  
   type Query {
     customers: [Customer]!
     customer: Customer!
@@ -152,6 +165,11 @@ module.exports = gql`
      adminGetCategory(categoryId: ID!): Category!
     # review
     reviewsOneProduct(productId: ID): [Review]!
+    # Slider
+    # id
+    slider(id: String): Slider
+    adminSlider(id: String): Slider
+    adminSliders: [Slider]!
   }
 
   type Mutation {
@@ -194,7 +212,6 @@ module.exports = gql`
     createReview(reviewInput: ReviewInput): Review!
     deleteReview(reviewId: ID): Review!
     adminDeleteReviews(reviewIds: [ID]): Boolean!
-
     # Cart
     addToCart(productId: ID, quantity: Float): Cart!
     decreaseCartItem(productId: ID, quantity: Float): Cart!
@@ -204,5 +221,13 @@ module.exports = gql`
     submitBillingAddress(customerAddressInput: CustomerAddressInput): Cart!
     submitShippingMethod(carrierCode: String, rateId: String): Cart
     submitPaymentMethod(methodCode: String): Cart
+
+    # Slider  ...# sliderInput 
+    adminAddSlider(title: String, name: String, image: String): Slider! 
+    adminUpdateSlider( sliderId: ID, title: String, image: String, name: String): Slider!
+    adminDeleteSlide( id: ID, slideId: ID): Slider!
+    adminMassDeleteSlides(slideIds: [ID]): Slider! 
+    adminDeleteSlider(sliderId: String): Slider! 
+    adminMassDeleteSliders(sliderIds: [String]): Slider! 
   }
 `;
