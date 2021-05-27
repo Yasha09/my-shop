@@ -1,6 +1,5 @@
 const Product = require("../../models/Product");
 const {UserInputError } = require("apollo-server");
-const {getSkip, limit }= require('../public/global')
 const dotenv = require("dotenv");
 dotenv.config();
 module.exports = {
