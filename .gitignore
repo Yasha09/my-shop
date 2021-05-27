@@ -4,6 +4,7 @@ node_modules
 
 .DS_Store
 
+graphql/public/global.js
 
 index.html
 
