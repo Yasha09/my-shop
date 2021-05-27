@@ -14,6 +14,9 @@ let CartItemSchema = new Schema(
       required: true,
       min: [1, "Quantity can not be less then 1."],
     },
+    name: {
+      type: String,
+    },
     price: {
       type: Number,
       required: true,
@@ -59,7 +62,7 @@ const CartSchema = new Schema(
 
     shippingAddress: CustomerAddressSchema,
     billingAddress: CustomerAddressSchema,
-    
+
     paymentMethod: {
       methodCode: String,
     },

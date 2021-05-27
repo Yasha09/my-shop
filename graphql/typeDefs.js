@@ -32,11 +32,11 @@ module.exports = gql`
     price: Float!
     categories: [Category]!
   }
-  input ProductInput{
-    title: String!,
-    image: String,
-    brand: String,
-    description: String,
+  input ProductInput {
+    title: String!
+    image: String
+    brand: String
+    description: String
     price: Float!
     categories: [ID]!
   }
@@ -45,10 +45,11 @@ module.exports = gql`
     id: ID
     productId: Product
     quantity: Float
+    name: String  
     price: Float
     total: Float
   }
-  
+
   type Cart {
     id: ID
     customerId: Customer
@@ -68,6 +69,46 @@ module.exports = gql`
   }
   type PaymentMethod {
     methodCode: String
+  }
+  # Order
+  type CustomerOrdersResult {
+    items: [Order]
+    total: Int
+  }
+  type AdminOrdersResult {
+    items: [Order]
+    total: Int
+  }
+  type OrderItem {
+    id: ID!
+    productId: Product
+    name: String
+    quantity: Float
+    price: Float
+    total: Float
+  }
+  type OrderCustomer {
+    firstname: String
+    lastname: String
+    email: String
+  }
+  type Order {
+    id: ID!
+    orderNumber: Int
+    createdAt: String
+    customerId: Customer
+    shippingTotal: Float
+    subTotal: Float
+    grandTotal: Float
+    items: [OrderItem]
+    totalQty: Int
+    orderStatus: String
+    customer: OrderCustomer
+  }
+  type SubmitOrderResponse {
+    orderId: ID
+    orderNumber: Float
+    totalPrice: Float
   }
   # input ProductInput{
   #   title: String!,
@@ -126,10 +167,15 @@ module.exports = gql`
     title: String
     parent: ID
   }
-  type ProductPagination{
-    totalQty:Float
-    pages:Float
-    products:[Product]
+  type ProductPagination {
+    totalQty: Float
+    pages: Float
+    products: [Product]
+  }
+  input SortInput {
+    createdAt: Float
+    title: Float
+    price: Float
   }
   type Query {
     customers: [Customer]!
@@ -138,20 +184,29 @@ module.exports = gql`
     admin: Admin!
     adminCustomer(id: ID!): Customer!
     # products
-    products(limit:Float page:Float): ProductPagination!
-    productsByA_Z(limit:Float page:Float,sortBy:Float): ProductPagination!
-    productsByPrice(limit:Float page:Float,sortBy:Float): ProductPagination!
-    productByName(productName:String!):Product
-    productById(id:ID): Product!
+    products(
+      limit: Float!
+      page: Float!
+      price: Float
+      createdAt: Float
+      title: Float
+    ): ProductPagination!
+    productByName(productName: String!): Product
+    productById(id: ID): Product!
     # categories
     categories: [Category]!
-    categoryById(id:ID): Category!
+    categoryById(id: ID): Category!
     # adminCategory
-     getCategoryProducts(categoryId: ID!): CategoryProductsResult!
-     adminGetCategories: AdminCategoriesResult!
-     adminGetCategory(categoryId: ID!): Category!
+    getCategoryProducts(categoryId: ID!): CategoryProductsResult!
+    adminGetCategories: AdminCategoriesResult!
+    adminGetCategory(categoryId: ID!): Category!
     # review
     reviewsOneProduct(productId: ID): [Review]!
+    # order
+    customerOrders: CustomerOrdersResult!
+    customerOrder(orderId: ID): Order!
+    adminOrders: AdminOrdersResult!
+    adminOrder(orderId: ID): Order!
   }
 
   type Mutation {
@@ -179,8 +234,8 @@ module.exports = gql`
 
     # product
     adminCreateProduct(productInput: ProductInput): Product!
-    adminUpdateProduct(productId: ID!,productInput:ProductInput): Product
-    adminDeleteProduct(id:ID!): Product!
+    adminUpdateProduct(productId: ID!, productInput: ProductInput): Product
+    adminDeleteProduct(id: ID!): Product!
     adminDeleteCategoryFromProduct(productId: ID, categories: [ID]): Product!
     # category
     adminAddCategory(categoryData: CategoryInputData!): Boolean
@@ -204,5 +259,11 @@ module.exports = gql`
     submitBillingAddress(customerAddressInput: CustomerAddressInput): Cart!
     submitShippingMethod(carrierCode: String, rateId: String): Cart
     submitPaymentMethod(methodCode: String): Cart
+
+    # Order
+    submitOrder(cartId: ID!): SubmitOrderResponse!
+    adminChangeOrderStatus(orderId: ID!, status: String): Order
+    adminDeleteOrder(orderId: ID): Boolean!
+    adminMassDeleteOrders(orderIds: [ID]!): Boolean
   }
 `;

@@ -56,6 +56,7 @@ module.exports = {
               ?.reduce((acc, next) => acc + next);
           } else {
             cart.items.push({
+              name: user.firstname,
               productId,
               quantity,
               price: productDetails.price,
@@ -75,6 +76,7 @@ module.exports = {
             customerId: user.id,
             items: [
               {
+                name: user.firstname,
                 productId,
                 quantity,
                 total: productDetails.price * quantity,

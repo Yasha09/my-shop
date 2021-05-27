@@ -17,6 +17,11 @@ module.exports = {
       return (await cart.populate("customerId").execPopulate()).customerId;
     },
   },
+  Order: {
+    customerId: async (cart) => {
+      return (await cart.populate("customerId").execPopulate()).customerId;
+    },
+  },
   //   // items: async (cart) => {
   //   //   console.log("cart ", cart);
   //   //   return await cart
