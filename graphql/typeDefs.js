@@ -58,6 +58,16 @@ module.exports = gql`
     grandTotal: Float
     totalQty: Float
     shippingAddress: Address
+    billingAddress: Address
+    paymentMethod: PaymentMethod
+    shippingMethod: ShippingMethod
+  }
+  type ShippingMethod {
+    carrierCode: String
+    rateId: String
+  }
+  type PaymentMethod {
+    methodCode: String
   }
   # input ProductInput{
   #   title: String!,
@@ -116,7 +126,11 @@ module.exports = gql`
     title: String
     parent: ID
   }
-
+  type ProductPagination{
+    totalQty:Float
+    pages:Float
+    products:[Product]
+  }
   type Query {
     customers: [Customer]!
     customer: Customer!
@@ -124,7 +138,10 @@ module.exports = gql`
     admin: Admin!
     adminCustomer(id: ID!): Customer!
     # products
-    products: [Product]!
+    products(limit:Float page:Float): ProductPagination!
+    productsByA_Z(limit:Float page:Float,sortBy:Float): ProductPagination!
+    productsByPrice(limit:Float page:Float,sortBy:Float): ProductPagination!
+    productByName(productName:String!):Product
     productById(id:ID): Product!
     # categories
     categories: [Category]!
@@ -184,5 +201,8 @@ module.exports = gql`
     removeItemFromCart(productId: ID): Cart!
     clearCart: Boolean!
     submitShippingAddress(customerAddressInput: CustomerAddressInput): Cart!
+    submitBillingAddress(customerAddressInput: CustomerAddressInput): Cart!
+    submitShippingMethod(carrierCode: String, rateId: String): Cart
+    submitPaymentMethod(methodCode: String): Cart
   }
 `;
