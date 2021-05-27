@@ -124,7 +124,6 @@ module.exports = gql`
     lastname: String
     city: String
     address: String
-
     country: String
   }
   type Address {
@@ -177,6 +176,24 @@ module.exports = gql`
     title: Float
     price: Float
   }
+
+  type Slide {
+    id: ID
+    name: String
+    image: String
+    content: String
+    contentPosition: String
+  }
+  type Slider {
+    id: ID
+    title: String
+    slides: [Slide]
+  }
+  # input SliderInput {
+  #   title: String
+  #   slides: [Slide]
+  # }
+  
   type Query {
     customers: [Customer]!
     customer: Customer!
@@ -207,6 +224,11 @@ module.exports = gql`
     customerOrder(orderId: ID): Order!
     adminOrders: AdminOrdersResult!
     adminOrder(orderId: ID): Order!
+    # Slider
+    # id
+    slider(id: String): Slider
+    adminSlider(id: String): Slider
+    adminSliders: [Slider]!
   }
 
   type Mutation {
@@ -249,7 +271,6 @@ module.exports = gql`
     createReview(reviewInput: ReviewInput): Review!
     deleteReview(reviewId: ID): Review!
     adminDeleteReviews(reviewIds: [ID]): Boolean!
-
     # Cart
     addToCart(productId: ID, quantity: Float): Cart!
     decreaseCartItem(productId: ID, quantity: Float): Cart!
@@ -265,5 +286,12 @@ module.exports = gql`
     adminChangeOrderStatus(orderId: ID!, status: String): Order
     adminDeleteOrder(orderId: ID): Boolean!
     adminMassDeleteOrders(orderIds: [ID]!): Boolean
+    # Slider  ...# sliderInput 
+    adminAddSlider(title: String, name: String, image: String): Slider! 
+    adminUpdateSlider( sliderId: ID, title: String, image: String, name: String): Slider!
+    adminDeleteSlide( id: ID, slideId: ID): Slider!
+    adminMassDeleteSlides(slideIds: [ID]): Slider! 
+    adminDeleteSlider(sliderId: String): Slider! 
+    adminMassDeleteSliders(sliderIds: [String]): Slider! 
   }
 `;

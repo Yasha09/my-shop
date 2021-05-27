@@ -1,8 +1,7 @@
 const Product = require("../../models/Product");
-const { UserInputError } = require("apollo-server");
+const {UserInputError } = require("apollo-server");
 const dotenv = require("dotenv");
 dotenv.config();
-
 module.exports = {
   Query: {
     // get products
@@ -19,31 +18,6 @@ module.exports = {
       };
     },
 
-    // productsByA_Z: async (_, { limit, page, sortBy }) => {
-    //   const res = await Product.find()
-    //     .limit(limit)
-    //     .skip((page - 1) * limit)
-    //     .sort({ title: sortBy });
-    //   let totalQty = await Product.countDocuments();
-    //   return {
-    //     totalQty,
-    //     pages: Math.ceil(totalQty / limit),
-    //     products: res,
-    //   };
-    // },
-    // productsByPrice: async (_, { limit, page, sortBy }) => {
-    //   const res = await Product.find()
-    //     .limit(limit)
-    //     .skip((page - 1) * limit)
-    //     .sort({ price: sortBy });
-    //   let totalQty = await Product.countDocuments();
-    //   return {
-    //     totalQty,
-    //     pages: Math.ceil(totalQty / limit),
-    //     products: res,
-    //   };
-    // },
-    
     productByName: async (_, args) => {
       const errors = {};
       const { productName } = args;

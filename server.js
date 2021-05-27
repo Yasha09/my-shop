@@ -5,7 +5,7 @@ dotenv.config();
 const typeDefs = require("./graphql/typeDefs");
 const resolvers = require("./graphql/resolvers");
 const auth = require("./util/auth");
-
+const cors = require('cors')
 const path = require("path");
 const express = require("express");
 
@@ -22,17 +22,14 @@ const fileStorage = multer.diskStorage({
 });
 app.use(express.static(__dirname + '/images'));
 app.use('/images', express.static(__dirname + '/images'));
-
+app.use(cors({credentials: true}))
 app.get("/images", (req, res) => { });
 
 app.get('/', function(request,response){
   response.sendFile(__dirname + '/index.html')
 });
-const upload = multer({ storage: fileStorage}).single('file');
 
-// app.post("/single", upload.single("image"), (req, res) => {
-//   res.send({image: req.file.filename});
-// });
+const upload = multer({ storage: fileStorage}).single('file');
 
 app.post('/single', (req, res) => {
   upload(req, res, (err) => {
