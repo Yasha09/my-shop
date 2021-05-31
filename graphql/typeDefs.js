@@ -104,6 +104,10 @@ module.exports = gql`
     totalQty: Int
     orderStatus: String
     customer: OrderCustomer
+    shippingAddress: Address
+    billingAddress: Address
+    paymentMethod: PaymentMethod
+    shippingMethod: ShippingMethod
   }
   type SubmitOrderResponse {
     orderId: ID
